@@ -5,8 +5,8 @@
  * @Version: 1.0
  * @Author: Tomasz Ułazowski
  * @Date:   2026-02-13 09:45:59
- * @Last Modified by:   Tomasz Ulazowski
- * @Last Modified time: 2026-04-19 21:26:40
+ * @Last Modified by:   Tomasz Ułazowski
+ * @Last Modified time: 2026-08-22 21:31:46
  **/
 
 namespace Opus\controller\lang;
@@ -78,7 +78,7 @@ class Lang
 
 			if (file_exists($file) === false) {
 				// User app
-				$file = __DIR__ . '/../../../apps/' . $app . '/lang/' . $_SESSION['lang'] . '_' . $app . '.json';
+				$file = __DIR__ . '/../../../../apps/' . $app . '/lang/' . $_SESSION['lang'] . '_' . $app . '.json';
 			}
 
 			$appTranslations = Json::loadJsonFile($file, true);

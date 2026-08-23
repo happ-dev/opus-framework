@@ -25,6 +25,7 @@ class ValidateAppConfig
 	private const REGEX_VIEW_INDEX = ['options' => ['regexp' => '/apps\/[a-z]+\/view\/[a-zA-Z0-9\/_-]+\.phtml$/']];
 	private const REGEX_VIEW_LAYOUT = ['options' => ['regexp' => '/apps\/[a-z]+\/view\/layout.phtml$/']];
 	private const REGEX_VIEW_ERROR = ['options' => ['regexp' => '/apps\/[a-z]+\/view\/error.phtml$/']];
+	private const REGEX_VIEW_CSS = ['options' => ['regexp' => '/apps\/[a-z]+\/css\/[a-zA-Z0-9_\/-]+\.css$/']];
 	private const REGEX_JS_INDEX = ['options' => ['regexp' => '/apps\/[a-z]+\/js\/[a-zA-Z0-9\/_-]+\.js$/']];
 	private const REGEX_JS_LAYOUT = ['options' => ['regexp' => '/apps\/[a-z]+\/js\/layout.js$/']];
 	private const REGEX_JS_ERROR = ['options' => ['regexp' => '/apps\/[a-z]+\/js\/error.js$/']];
@@ -245,7 +246,8 @@ class ValidateAppConfig
 		// Optional fields with their validation rules
 		$optional = [
 			'layout' => fn($v) => filter_var($v, FILTER_VALIDATE_REGEXP, self::REGEX_VIEW_LAYOUT),
-			'error' => fn($v) => filter_var($v, FILTER_VALIDATE_REGEXP, self::REGEX_VIEW_ERROR)
+			'error' => fn($v) => filter_var($v, FILTER_VALIDATE_REGEXP, self::REGEX_VIEW_ERROR),
+			'css' => fn($v) => filter_var($v, FILTER_VALIDATE_REGEXP, self::REGEX_VIEW_CSS)
 		];
 
 		// Validate required fields
@@ -273,6 +275,7 @@ class ValidateAppConfig
 					$this->errors[] = match ($field) {
 						'layout' => "Invalid layout path format: {$config->view->$field}, must match pattern apps/name/view/layout.phtml",
 						'error' => "Invalid error path format: {$config->view->$field}, must match pattern apps/name/view/error.phtml",
+						'css' => "Invalid css path format: {$config->view->$field}, must match pattern apps/name/css/name.css",
 						default => "Invalid value for {$field}"
 					};
 				}

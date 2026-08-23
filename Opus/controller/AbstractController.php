@@ -5,8 +5,8 @@
  * @Version: 1.0
  * @Author: Tomasz Ułazowski
  * @Date:   2026-02-07 17:25:15
- * @Last Modified by:   Tomasz Ulazowski
- * @Last Modified time: 2026-07-02 19:45:52
+ * @Last Modified by:   Tomasz Ułazowski
+ * @Last Modified time: 2026-08-22 22:43:47
  **/
 
 namespace Opus\controller;
@@ -267,6 +267,7 @@ abstract class AbstractController
 		self::$layout->opusLib = $this->createJsLib(true);
 		self::$layout->opusCss = $this->copyCssFile();
 		self::$layout->appLib = $this->createJsLib(false);
+		self::$layout->appCss = $this->copyAppCssFile();
 		self::$layout->appJs = self::$index->js;
 	}
 
@@ -352,6 +353,7 @@ abstract class AbstractController
 		self::$libs ??= new stdClass();
 		self::$index->app = $mainApp === true ? Config::OPUS_MAIN_APP : self::$app;
 		self::$index->index = Config::getConfig(self::$index->app)->view->index;
+		self::$index->css = Config::getConfig(self::$index->app)->view->css ?? null;
 		self::$index->js = Config::getConfig(self::$index->app)->js->index;
 		self::$index->vendor = Config::getConfig(self::$index->app)->vendor ?? [];
 		self::$index->classes = [];
@@ -528,6 +530,66 @@ abstract class AbstractController
 
 		if ($cssFile->success === true && !file_exists($cssFile->fullPath)) {
 			throw new Exception('Controller::copyCssFile: File could not be found: ' . $cssFile->fullPath);
+		}
+
+		return $cssFile->success === true ? $cssFile->headPath : null;
+	}
+
+	/**
+	 * Copies the application CSS file to the public vendor directory with comment removal
+	 *
+	 * Reads the source app CSS file, strips comments, and writes the cleaned content
+	 * to public/vendor/opus/. In 'dev' mode, the file is recreated on every request.
+	 * In 'prod' mode, the file is regenerated only if missing or older than one week.
+	 *
+	 * @return string|null The relative path for the <head> section or null if no app CSS configured
+	 * @throws Exception If the file was expected to be created but does not exist
+	 */
+	private function copyAppCssFile(): ?string
+	{
+		if (is_null(self::$index->css ?? null)) {
+			return null;
+		}
+
+		$cssFile = new stdClass();
+		$cssFile->source = self::$index->css;
+		$cssFile->name = self::$app . '.css';
+		$cssFile->publicDir = __DIR__ . '/../../../public/vendor/opus/';
+		$cssFile->fullPath = $cssFile->publicDir . $cssFile->name;
+		$cssFile->headPath = 'opus/' . $cssFile->name;
+		$cssFile->success = false;
+
+		if (!is_dir($cssFile->publicDir)) {
+			mkdir($cssFile->publicDir, 0777, true);
+		}
+
+		$processAndWrite = function () use (&$cssFile): void {
+			@unlink($cssFile->fullPath);
+			$content = @file_get_contents($cssFile->source);
+
+			if ($content !== false) {
+				$content = trim(preg_replace(self::JS_PATTERN_COMMENTS, self::JS_REPLACEMENT_COMMENTS, $content));
+
+				if (!empty($content)) {
+					file_put_contents($cssFile->fullPath, $content);
+					$cssFile->success = true;
+				}
+			}
+		};
+
+		match (Config::getConfig()->role) {
+			'dev' => $processAndWrite(),
+			default => (function () use (&$cssFile, $processAndWrite) {
+				$oneWeekAgo = time() - 7 * 24 * 60 * 60;
+
+				if (!file_exists($cssFile->fullPath) || filemtime($cssFile->fullPath) < $oneWeekAgo) {
+					$processAndWrite();
+				}
+			})()
+		};
+
+		if ($cssFile->success === true && !file_exists($cssFile->fullPath)) {
+			throw new Exception('Controller::copyAppCssFile: File could not be found: ' . $cssFile->fullPath);
 		}
 
 		return $cssFile->success === true ? $cssFile->headPath : null;

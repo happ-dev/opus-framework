@@ -6,7 +6,7 @@
  * @Author: Tomasz Ulazowski
  * @Date:   2026-03-28 20:27:19
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-08-10 11:23:07
+ * @Last Modified time: 2026-08-22 22:07:35
  **/
 
 namespace Opus\html\form;
@@ -157,6 +157,7 @@ abstract class AbstractForm
 		$attrHtml = '';
 
 		foreach ($attributes as $attrKey => $attrValue) {
+
 			$attrHtml .= is_numeric($attrKey)
 				? $attrValue . ' '							// Boolean attribute
 				: $attrKey . '="' . $attrValue . '" ';		// Regular attribute

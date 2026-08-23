@@ -68,7 +68,8 @@ class Layout
 		$cssFiles = array_filter(array_merge(
 			preg_grep('/\.css$/i', $globalVendor),
 			preg_grep('/\.css$/i', $appVendor),
-			[$this->layout->opusCss]
+			[$this->layout->opusCss],
+			[$this->layout->appCss]
 		));
 
 		$jsFiles = array_filter(array_merge(

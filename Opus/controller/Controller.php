@@ -6,7 +6,7 @@
  * @Author: Tomasz Ułazowski
  * @Date:   2026-02-09 09:54:34
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-08-22 16:39:13
+ * @Last Modified time: 2026-08-22 22:41:44
  **/
 
 namespace Opus\controller;
@@ -89,6 +89,8 @@ class Controller extends AbstractController
 
 			// Process requests and load application resources
 			$this->pageRequest($request);
+			$this->loadAppClasses();
+			$this->loadAppLibs();
 
 			// Create and dispatch event
 			$action = Event::newEvent(Event::TYPE_PAGE, self::$app, $request);
@@ -111,6 +113,8 @@ class Controller extends AbstractController
 
 			// Process async page request and load application resources
 			$app = $this->asyncRequest($request);
+			$this->loadAppClasses();
+			$this->loadAppLibs();
 
 			// Create and dispatch event
 			$action = Event::newEvent(Event::TYPE_ASYNC_PAGE, $app, $request);
@@ -130,6 +134,8 @@ class Controller extends AbstractController
 
 			// Process API request and load application resources
 			$app = $this->apiRequest($request);
+			$this->loadAppClasses();
+			$this->loadAppLibs();
 
 			// Create and dispatch event
 			$action = Event::newEvent(Event::TYPE_API, $app, $request);
@@ -153,8 +159,10 @@ class Controller extends AbstractController
 			$this->cliRequest($app[1]);
 			CliArguments::check($app);
 			$this->setApi($app[1]);
+			$this->loadAppClasses();
+			$this->loadAppLibs();
 
-			// Process CLI request and load application resources
+			// Create and dispatch event
 			$action = Event::newEvent(Event::TYPE_CLI, $app[1], null);
 		} catch (ControllerException | StorageException $event) {
 			echo $event->cliAction();
