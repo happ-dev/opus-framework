@@ -24,7 +24,7 @@ Provides the project structure: `index.php`, `config/`, `public/`, `apps/`, `ses
 ## 2. Clone Opus framework
 
 ```bash
-git clone https://github.com/happ-dev/Opus.git vendor/Opus
+git clone https://github.com/happ-dev/opus-framework.git vendor/Opus
 ```
 
 ---
@@ -186,7 +186,7 @@ Without `sudo`, the script lists issues and displays:
 ```bash
 git clone https://github.com/happ-dev/opus-skeleton.git my-project
 cd my-project
-git clone https://github.com/happ-dev/Opus.git vendor/Opus
+git clone https://github.com/happ-dev/opus-framework.git vendor/Opus
 php composer.phar update
 # edit config/global.json
 sudo OPUS_LANG=pl ./vendor/Opus/bin/install.sh
