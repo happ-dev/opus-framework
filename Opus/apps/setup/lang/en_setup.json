@@ -1,0 +1,17 @@
+{
+	"setup.welcome": "Opus installed successfully. Configuration encrypted.",
+	"setup.check.header": "Setup Check",
+	"setup.check.directories": "Directories:",
+	"setup.check.files": "Files:",
+	"setup.check.database": "Database:",
+	"setup.check.status.ok": "All checks passed.",
+	"setup.check.status.fail": "Issues detected. Run 'php index.php setup repair' to fix.",
+	"setup.repair.header": "Setup Repair",
+	"setup.repair.running_check": "No report found, running check first...",
+	"setup.repair.report_error": "Cannot read setup_report.json",
+	"setup.repair.need_sudo": "Run 'sudo php index.php setup repair' to fix.",
+	"setup.repair.nothing": "Nothing to repair.",
+	"setup.repair.run_install": "run install.sh",
+	"setup.repair.key_auto": "will be generated on next request",
+	"setup.repair.db_issues": "Database issues detected. Run 'sudo ./reset.sh' + 'sudo ./install.sh'."
+}

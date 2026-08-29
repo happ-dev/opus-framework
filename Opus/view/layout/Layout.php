@@ -16,6 +16,7 @@ use Opus\html\form\Form;
 use Opus\html\buttons\Buttons;
 use Opus\view\navbar\Navbar;
 use Opus\view\login\Login;
+use Opus\controller\security\Csp;
 use Opus\controller\TraitController;
 
 class Layout
@@ -24,11 +25,13 @@ class Layout
 
 	public ?string $opusMainAppScript;
 	public ?string $appScript;
+	public string $nonce;
 	protected ?object $navbar;
 	protected ?string $loginForm;
 
 	public function __construct(protected mixed $content = null, protected object $layout)
 	{
+		$this->nonce = Csp::getNonce();
 		$this->setHeadLibs();
 		$this->opusMainAppScript = $this->buildScript(
 			$this->layout->js,

@@ -10,7 +10,7 @@
 	<meta name="csrf-token" content="<?= end($_SESSION['csrf']) ?>">
 	<?= $this->layout->stylesheets ?>
 	<?= $this->layout->scripts ?>
-	<script type="text/javascript">
+	<script type="text/javascript" nonce="<?= $this->nonce ?>">
 		<?= $this->opusMainAppScript ?>
 	</script>
 </head>
@@ -48,7 +48,7 @@
 		<?= $this->content ?>
 		<?= $this->loginForm ?>
 	</div>
-	<script type="text/javascript">
+	<script type="text/javascript" nonce="<?= $this->nonce ?>">
 		<?= $this->appScript ?>
 	</script>
 </body>

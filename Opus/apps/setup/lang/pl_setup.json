@@ -1,0 +1,17 @@
+{
+	"setup.welcome": "Opus zainstalowany. Konfiguracja zaszyfrowana.",
+	"setup.check.header": "Diagnoza systemu",
+	"setup.check.directories": "Katalogi:",
+	"setup.check.files": "Pliki:",
+	"setup.check.database": "Baza danych:",
+	"setup.check.status.ok": "Wszystkie sprawdzenia przeszły pomyślnie.",
+	"setup.check.status.fail": "Wykryto problemy. Uruchom 'php index.php setup repair' aby naprawić.",
+	"setup.repair.header": "Naprawa systemu",
+	"setup.repair.running_check": "Brak raportu, uruchamiam diagnozę...",
+	"setup.repair.report_error": "Nie można odczytać setup_report.json",
+	"setup.repair.need_sudo": "Uruchom 'sudo php index.php setup repair' aby naprawić.",
+	"setup.repair.nothing": "Nic do naprawy.",
+	"setup.repair.run_install": "uruchom install.sh",
+	"setup.repair.key_auto": "zostanie wygenerowany przy następnym żądaniu",
+	"setup.repair.db_issues": "Wykryto problemy z bazą danych. Uruchom 'sudo ./reset.sh' + 'sudo ./install.sh'."
+}

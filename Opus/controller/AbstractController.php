@@ -6,7 +6,7 @@
  * @Author: Tomasz Ułazowski
  * @Date:   2026-02-07 17:25:15
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-08-22 22:43:47
+ * @Last Modified time: 2026-08-27 19:11:45
  **/
 
 namespace Opus\controller;
@@ -817,13 +817,6 @@ abstract class AbstractController
 			// CLI-specific applications bypass authorization
 			in_array($app, Event::TYPE_APPS['cli']) => null,
 
-			// Throw exception if access configuration is missing
-			!isset(Config::getConfig($app)->access) => throw new ControllerException(
-				'controller\request\route',
-				['message' => $app],
-				ControllerException::TYPE_CLI_EXCEPTION
-			),
-
 			// Handle authentication and authorization for protected apps
 			default => (function () use ($app) {
 				// Check if login is required
@@ -906,13 +899,12 @@ abstract class AbstractController
 	 */
 	protected function setServerTimezone(): void
 	{
-		// Try to determine timezone from environment or system files
-		$timezone = $_SERVER['TZ'] ?? (file_get_contents('/etc/timezone') ?: file_get_contents('/etc/localtime'));
+		$timezone = $_SERVER['TZ']
+			?? (is_readable('/etc/timezone') ? trim(file_get_contents('/etc/timezone')) : null)
+			?? (is_link('/etc/localtime') ? preg_replace('#.*/zoneinfo/#', '', readlink('/etc/localtime')) : null)
+			?? date_default_timezone_get();
 
-		// Clean up and store the timezone
-		self::$serverTimezone = trim($timezone);
-
-		// Set the timezone for all PHP date/time functions
+		self::$serverTimezone = $timezone;
 		date_default_timezone_set(self::$serverTimezone);
 	}
 }

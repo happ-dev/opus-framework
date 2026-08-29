@@ -2,6 +2,16 @@
 
 ## TODO
 
+### Bugs
+- [x] `ValidateGlobalConfig::validateStorageConfig()` — `host` validation only checks IP (`FILTER_VALIDATE_IP`), should also accept hostnames (e.g. Docker container names)
+
+### Plans
+- [x] Setup CLI — `php index.php setup` ([docs/PLAN_SetupCli.md](PLAN_SetupCli.md))
+- [x] CSP Nonce — ([docs/PLAN_CspNonce.md](PLAN_CspNonce.md))
+- [x] InjectHtml — ([docs/PLAN_InjectHtml.md](PLAN_InjectHtml.md))
+- [x] OpusSelect — ([docs/PLAN_OpusSelect.md](PLAN_OpusSelect.md))
+- [x] StandardFormElements — ([docs/PLAN_StandardFormElements.md](PLAN_StandardFormElements.md))
+
 ### JS
 - [ ] Chart library (chart.js + optional API for data fetching)
 
@@ -55,3 +65,7 @@
 	- [x] Navbar incorrectly displays icons in resolutions other than the default browser resolution
 	- [x] Offcanvas-header - after changing the theme to dark, the text color remains black
 	- [x] Opening the second page in the browser changes csrf token, which causes an error in the first page opened
+	- [x] CSP blocks inline style attributes (`style-src 'self'`) — added `'unsafe-inline'` to `style-src`
+	- [x] CSP blocks Bootstrap's inline SVG data URIs in CSS variables (`img-src 'self'`) — added `data:` to `img-src`
+	- [x] `AbstractController::setServerTimezone()` — `/etc/timezone` missing on Debian 13 (Trixie) — added `readlink('/etc/localtime')` fallback
+	- [x] `CliArguments::langFile()` — CLI help read from `{lang}_{app}.json` incompatible with `Lang` class — renamed to `errorFile()`, reads from optional `{lang}_error.json` per app, falls back to central `{lang}_error.json`

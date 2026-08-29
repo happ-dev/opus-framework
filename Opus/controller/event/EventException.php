@@ -6,7 +6,7 @@
  * @Author: Tomasz Ułazowski
  * @Date:   2026-05-15 15:24:12
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-08-01 14:22:13
+ * @Last Modified time: 2026-08-27 19:37:36
  **/
 
 namespace Opus\controller\event;
@@ -16,6 +16,7 @@ use Opus\controller\InterfaceController;
 use Opus\controller\login\Login;
 use Opus\controller\event\download\Download;
 use Opus\controller\event\upload\UploadEvent;
+use Opus\apps\setup\src\SetupController;
 
 class EventException extends Exception implements InterfaceController
 {

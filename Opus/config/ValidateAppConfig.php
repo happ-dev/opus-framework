@@ -6,7 +6,7 @@
  * @Author: Tomasz Ułazowski
  * @Date:   2026-02-01 09:44:17
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-06-28 18:23:49
+ * @Last Modified time: 2026-08-26 21:10:24
  **/
 
 namespace Opus\config;
@@ -15,7 +15,11 @@ use Exception;
 
 class ValidateAppConfig
 {
-	private const REQUIRED_SECTIONS = ['app', 'route', 'view', 'js'];
+	private const REQUIRED_SECTIONS = [
+		'page' => ['app', 'route', 'view', 'js'],
+		'api' => ['app'],
+		'cli' => ['app']
+	];
 	private const APP_TYPES = ['page', 'api', 'cli'];
 	private const NAV_TYPES = ['menu', 'submenu'];
 	private const APP_TABLE_EVENT_ACCESS = ['add', 'edit', 'delete'];
@@ -93,7 +97,10 @@ class ValidateAppConfig
 	 */
 	private function validateRequiredSections(object $config): self
 	{
-		foreach (self::REQUIRED_SECTIONS as $section) {
+		$type = $config->app->type ?? null;
+		$sections = self::REQUIRED_SECTIONS[$type] ?? self::REQUIRED_SECTIONS['page'];
+
+		foreach ($sections as $section) {
 
 			if (!property_exists($config, $section)) {
 				$this->errors[] = "Missing required section: {$section}";
@@ -156,6 +163,10 @@ class ValidateAppConfig
 	 */
 	private function validateRouteSection(object $config): self
 	{
+		if (!in_array('route', self::REQUIRED_SECTIONS[$config->app->type ?? 'page'])) {
+			return $this;
+		}
+
 		$required = [
 			'route' => fn($v) => is_array($v) && !empty($v)
 				&& count(array_filter($v, 'is_string')) === count($v)
@@ -238,6 +249,10 @@ class ValidateAppConfig
 	 */
 	private function validateViewSection(object $config): self
 	{
+		if (!in_array('view', self::REQUIRED_SECTIONS[$config->app->type ?? 'page'])) {
+			return $this;
+		}
+
 		// Required fields with their validation rules
 		$required = [
 			'index' => fn($v) => filter_var($v, FILTER_VALIDATE_REGEXP, self::REGEX_VIEW_INDEX)
@@ -298,6 +313,10 @@ class ValidateAppConfig
 	 */
 	private function validateJsSection(object $config): self
 	{
+		if (!in_array('js', self::REQUIRED_SECTIONS[$config->app->type ?? 'page'])) {
+			return $this;
+		}
+
 		// Required fields with their validation rules
 		$required = [
 			'index' => fn($v) => filter_var($v, FILTER_VALIDATE_REGEXP, self::REGEX_JS_INDEX)

@@ -1,0 +1,9 @@
+{
+	"app": {
+		"type": "cli",
+		"access": 0,
+		"class": "Opus\\apps\\setup\\src\\SetupController",
+		"version": "1.0",
+		"description": "Opus framework - Settings application"
+	}
+}

@@ -49,6 +49,10 @@
 				"color": {
 					"message": "Nieprawidłowy format koloru: $value$"
 				}
+			},
+
+			"argument": {
+				"message": "Nieprawidłowy argument \"$value$\" podany dla aplikacji: $value$."
 			}
 		},
 

@@ -6,7 +6,7 @@
  * @Author: Tomasz Ułazowski
  * @Date:   2026-01-27 11:06:49
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-05-16 11:00:04
+ * @Last Modified time: 2026-08-26 20:58:15
  **/
 
 namespace Opus\config;
@@ -37,6 +37,10 @@ abstract class ValidateGlobalConfig
 		[
 			'app' => 'demo',
 			'config' => 'vendor/Opus/apps/demo/config/demo.config.json'
+		],
+		[
+			'app' => 'setup',
+			'config' => 'vendor/Opus/apps/setup/config/setup.config.json'
 		]
 	];
 
@@ -91,7 +95,9 @@ abstract class ValidateGlobalConfig
 		$errors = [];
 		$required = [
 			'type' => fn($v) => in_array($v, self::STORAGE_REQUIRED_TYPES),
-			'host' => fn($v) => EncryptStorageConfig::decrypt($v) === 'localhost' || filter_var(EncryptStorageConfig::decrypt($v), FILTER_VALIDATE_IP),
+			'host' => fn($v) => EncryptStorageConfig::decrypt($v) === 'localhost'
+				|| filter_var(EncryptStorageConfig::decrypt($v), FILTER_VALIDATE_IP)
+				|| filter_var(EncryptStorageConfig::decrypt($v), FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME),
 			'port' => fn($v) => filter_var(EncryptStorageConfig::decrypt($v), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 65535]]),
 			'user' => fn($v) => EncryptStorageConfig::isEncrypted($v),
 			'pass' => fn($v) => EncryptStorageConfig::isEncrypted($v)

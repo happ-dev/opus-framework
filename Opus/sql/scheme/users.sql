@@ -4,7 +4,7 @@
  * @Author: Tomasz Ułazowski
  * @Date:   2026-08-22 19:53:51
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-08-22 19:56:44
+ * @Last Modified time: 2026-08-29 15:17:50
 **/
 
 -- =============================================================================
@@ -70,7 +70,7 @@ INSERT INTO users.users(
 	'root',
 	(SELECT DISTINCT glevel FROM "groups"."groups" WHERE gname = 'Root'),
 	TRUE,
-	'password',
+	'$root_password$',
 	'root',
 	'root',
 	'root@opus.local',
@@ -85,7 +85,7 @@ INSERT INTO users.users(
 	'api',
 	(SELECT DISTINCT glevel FROM "groups"."groups" WHERE gname = 'Api'),
 	TRUE,
-	'14c2529eb4498c5d1ffd6915d05bf58a91bdda796af59f41d480d11c099d0479',
+	'$api_password$',
 	'api',
 	'api',
 	'api@opus.local',

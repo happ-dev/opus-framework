@@ -1,0 +1,16 @@
+{
+	"setup": {
+		"help": {
+			"message": "Required parameters: php index.php setup <command>",
+			"details": "Available commands:\n  welcome  - welcome message after installation\n  check    - system diagnostics, JSON report\n  repair   - fix filesystem/config (does not touch DB)\n\nInstall and reset: sudo bash vendor/Opus/bin/install.sh | sudo bash vendor/Opus/bin/reset.sh",
+			"check": {
+				"message": "System diagnostics",
+				"details": "Checks directories, permissions, DB connection, roles, schemas and tables.\nSaves report to config/setup_report.json"
+			},
+			"repair": {
+				"message": "Filesystem and config repair",
+				"details": "Fixes missing directories and permissions. Does not modify the database."
+			}
+		}
+	}
+}

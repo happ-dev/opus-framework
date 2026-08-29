@@ -6,7 +6,7 @@
  * @Author: Tomasz Ułazowski
  * @Date:   2026-02-18 09:57:47
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-02-18 11:25:01
+ * @Last Modified time: 2026-08-27 19:57:21
  **/
 
 namespace Opus\controller\cli;
@@ -50,7 +50,7 @@ class CliArguments
 				$arg[1] . '\help',
 				['message' => $arg[1]],
 				ControllerException::TYPE_CLI_EXCEPTION,
-				self::langFile($arg[1])
+				self::errorFile($arg[1])
 			)
 		};
 	}
@@ -66,36 +66,35 @@ class CliArguments
 	}
 
 	/**
-	 * Determines the path to an application's language file
+	 * Determines the path to an application's error file
 	 *
-	 * This method locates the appropriate language file for an application based on:
+	 * This method locates the optional error file for an application based on:
 	 * 1. Whether it's a core Opus app or a custom app
 	 * 2. The current language setting in the session
 	 *
-	 * Core Opus apps have language files in the vendor directory, while
-	 * custom apps have language files in the apps directory.
+	 * Returns null if the file does not exist, causing ControllerException
+	 * to fall back to the central {lang}_error.json.
 	 *
 	 * @param string|null $app The application identifier
-	 * @return string|null Path to the language file in format {language}_{app}.json
+	 * @return string|null Path to the error file in format {language}_error.json, or null
 	 */
-	private static function langFile(?string $app): ?string
+	private static function errorFile(?string $app): ?string
 	{
-		// Return null if no app is specified
 		if (is_null($app)) {
 			return null;
 		}
 
-		// Check if this is a core Opus app
 		$isOpusApp = !empty(array_filter(
 			Config::OPUS_APPS,
 			fn($opusApp) => $opusApp['app'] === $app
 		));
 
-		// Return the appropriate path based on app type
-		return match ($isOpusApp) {
-			true =>  __DIR__ . '/../../../vendor/Opus/apps/' . $app . '/lang/' . $_SESSION['lang'] . '_' . $app . '.json',
-			false => __DIR__ . '/../../../apps/' . $app . '/lang/' . $_SESSION['lang'] . '_' . $app . '.json'
+		$file = match ($isOpusApp) {
+			true =>  __DIR__ . '/../../apps/' . $app . '/lang/' . $_SESSION['lang'] . '_error.json',
+			false => __DIR__ . '/../../../apps/' . $app . '/lang/' . $_SESSION['lang'] . '_error.json'
 		};
+
+		return file_exists($file) ? $file : null;
 	}
 
 	/**
@@ -111,7 +110,7 @@ class CliArguments
 	 *
 	 * @param array $arg The command line arguments array
 	 * @param string $app The application identifier
-	 * @throws ControllerHelpException When a help argument is detected
+	 * @throws ControllerException When a help argument is detected
 	 * @return void
 	 */
 	private static function helpArgument(array $arg, string $app): void
@@ -130,7 +129,7 @@ class CliArguments
 					$app . '\help',
 					['message' => $app],
 					ControllerException::TYPE_CLI_EXCEPTION,
-					self::langFile($app)
+				self::errorFile($app)
 				),
 
 				// Command-specific help (command --help)
@@ -140,7 +139,7 @@ class CliArguments
 						$app . '\help\\' . $helpArg,
 						['message' => $helpArg],
 						ControllerException::TYPE_CLI_EXCEPTION,
-						self::langFile($app)
+						self::errorFile($app)
 					);
 				})()
 			};

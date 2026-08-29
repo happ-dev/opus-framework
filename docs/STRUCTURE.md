@@ -23,15 +23,30 @@
 		- profile/
 		- logs/
 		- demo/
+	- bin/
+		- install.sh
+		- reset.sh
+		- lang/
+			- en_install.sh
+			- pl_install.sh
+		- scripts/
+			- step_connection.sh
+			- step_directories.sh
+			- step_passwords.sh
+			- step_config.sh
+			- step_sql.sh
+			- step_secret.sh
 	- config/
 	- controller/
 		- auth/
 		- cli/
 		- event/
 		- exception/
+		- lang/
 		- login/
 		- query/
 		- request/
+		- security/
 	- html/
 		- asyncpage/
 		- form/					> moved from controller/
@@ -43,7 +58,6 @@
 		- sidebar/				> moved from view/
 	- js/
 	- libs/						> before controller/common/
-	- lang/
 	- sql/
 	- storage/
 		- curl/
@@ -51,13 +65,13 @@
 		- exception/
 		- json/
 	- view/
-		- script/				> all code moved to Layout Class
 		- layout/
 		- navbar/
 		- login/
 			- Login.php			> moved from view/navbar/ and renamed from LoginForm.php
 		- view/
 	- css/						> opus.css
+- docs/
 - .gitignore
 - README.md
 ```

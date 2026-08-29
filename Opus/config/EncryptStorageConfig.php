@@ -62,7 +62,8 @@ class EncryptStorageConfig
 			file_put_contents(Config::OPUS_SECRET_KEY, $storageKey, LOCK_EX)
 				?: throw new Exception('Failed to write secret key file');
 
-			chmod(Config::OPUS_SECRET_KEY, 0400);
+			chmod(Config::OPUS_SECRET_KEY, 0660);
+			chgrp(Config::OPUS_SECRET_KEY, 'www-data');
 			return $keyMaterial;
 		} catch (Exception $e) {
 			throw new Exception('Key operation failed: ' . $e->getMessage());
@@ -245,6 +246,9 @@ class EncryptStorageConfig
 
 				file_put_contents(Config::OPUS_LOCAL_CONFIG, $jsonNewContent)
 					?: throw new Exception('Failed to write to json file: ' . Config::OPUS_LOCAL_CONFIG);
+
+				chmod(Config::OPUS_LOCAL_CONFIG, 0660);
+				chgrp(Config::OPUS_LOCAL_CONFIG, 'www-data');
 				return true;
 			}
 

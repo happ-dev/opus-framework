@@ -8,11 +8,12 @@ Please do not use it for any projects because it is very likely to be full of ho
 
 ## Quick Start
 
-See [docs/CONFIGURATION_INDEX.md](docs/CONFIGURATION_INDEX.md) for Hello World setup and all config file examples.
+See [docs/CONFIGURATION_OPUS.md](docs/CONFIGURATION_OPUS.md) for installation and setup instructions.
 
 ## Documentation
 
 - [docs/STRUCTURE.md](docs/STRUCTURE.md) — project directory structure
+- [docs/CONFIGURATION_OPUS.md](docs/CONFIGURATION_OPUS.md) — installation, setup & management
 - [docs/CONFIGURATION_INDEX.md](docs/CONFIGURATION_INDEX.md) — configuration files (index.php, quick start)
 - [docs/CONFIGURATION_GLOBAL_CONFIG.md](docs/CONFIGURATION_GLOBAL_CONFIG.md) — global.json & local.json full reference
 - [docs/CONFIGURATION_APP_CONFIG.md](docs/CONFIGURATION_APP_CONFIG.md) — app.config.json full reference

@@ -17,6 +17,7 @@ use Opus\html\modal\Modal;
 use Opus\html\buttons\Buttons;
 use Opus\html\form\Form;
 use Opus\controller\query\TraitQuery;
+use Opus\controller\security\Csp;
 
 /**
  * Handles the view generation for table event operations
@@ -77,10 +78,11 @@ class TableEventView extends ArrayObject
 		$modal = new Modal();
 		$modal->addModal('table-event', $options);
 
+		$nonce = Csp::getNonce();
 		ob_start();
 		echo <<<HTML
 		{$modal->getModalByName('table-event')}
-		<script type="text/javascript">
+		<script type="text/javascript" nonce="{$nonce}">
 			$(document).ready(function () {
 				const objTableEvent = new OpusModal({
 					name: "table-event",

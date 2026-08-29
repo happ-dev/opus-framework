@@ -6,7 +6,7 @@
  * @Author: Tomasz Ułazowski
  * @Date:   2026-02-09 09:54:34
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-08-22 22:41:44
+ * @Last Modified time: 2026-08-27 19:41:38
  **/
 
 namespace Opus\controller;
@@ -18,6 +18,7 @@ use Opus\controller\cli\CliColor;
 use Opus\controller\cli\CliArguments;
 use Opus\controller\event\Event;
 use Opus\controller\exception\ControllerException;
+use Opus\controller\security\Csp;
 use Opus\storage\exception\StorageException;
 use Opus\view\layout\Layout;
 
@@ -82,6 +83,7 @@ class Controller extends AbstractController
 	{
 		// Define action variable for use in finally block
 		$action = null;
+		Csp::send();
 
 		try {
 			// Initialize environment
