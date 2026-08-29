@@ -10,7 +10,18 @@
 
 ---
 
-## 1. Clone Opus framework
+## 1. Clone project skeleton
+
+```bash
+git clone https://github.com/happ-dev/opus-skeleton.git my-project
+cd my-project
+```
+
+Provides the project structure: `index.php`, `config/`, `public/`, `apps/`, `sessions/`.
+
+---
+
+## 2. Clone Opus framework
 
 ```bash
 git clone https://github.com/happ-dev/Opus.git vendor/Opus
@@ -18,7 +29,7 @@ git clone https://github.com/happ-dev/Opus.git vendor/Opus
 
 ---
 
-## 2. Install dependencies
+## 3. Install dependencies
 
 ```bash
 php composer.phar update
@@ -28,7 +39,7 @@ Generates `vendor/autoload.php` with PSR-4 autoloading for the Opus framework.
 
 ---
 
-## 3. Configure
+## 4. Configure
 
 Create `config/global.json` — see [CONFIGURATION_GLOBAL_CONFIG.md](CONFIGURATION_GLOBAL_CONFIG.md) for full reference.
 
@@ -36,7 +47,7 @@ Create `config/global.json` — see [CONFIGURATION_GLOBAL_CONFIG.md](CONFIGURATI
 
 ---
 
-## 4. Install
+## 5. Install
 
 ```bash
 sudo OPUS_LANG=pl ./vendor/Opus/bin/install.sh
@@ -76,7 +87,7 @@ The script tracks executed SQL files in `config/install.log`. If interrupted, re
 
 ---
 
-## 5. Reset
+## 6. Reset
 
 ```bash
 sudo OPUS_LANG=pl ./vendor/Opus/bin/reset.sh
@@ -96,7 +107,7 @@ The script will:
 
 ---
 
-## 6. Check
+## 7. Check
 
 ```bash
 php index.php setup check
@@ -142,7 +153,7 @@ Output example:
 
 ---
 
-## 7. Repair
+## 8. Repair
 
 ```bash
 sudo php index.php setup repair
@@ -173,6 +184,9 @@ Without `sudo`, the script lists issues and displays:
 ### Fresh installation
 
 ```bash
+git clone https://github.com/happ-dev/opus-skeleton.git my-project
+cd my-project
+git clone https://github.com/happ-dev/Opus.git vendor/Opus
 php composer.phar update
 # edit config/global.json
 sudo OPUS_LANG=pl ./vendor/Opus/bin/install.sh
