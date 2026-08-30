@@ -93,7 +93,8 @@ The script tracks executed SQL files in `config/install.log`. If interrupted, re
 sudo OPUS_LANG=pl ./vendor/Opus/bin/reset.sh
 ```
 
-Destructive operation — drops the database, roles, and removes config files.
+> [!CAUTION]
+> This will permanently delete the **entire database** including all application data, user accounts, and logs. All applications sharing this database will lose their data.
 
 The script will:
 
