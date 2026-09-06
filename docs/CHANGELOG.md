@@ -6,14 +6,19 @@
 - [x] `ValidateGlobalConfig::validateStorageConfig()` — `host` validation only checks IP (`FILTER_VALIDATE_IP`), should also accept hostnames (e.g. Docker container names)
 
 ### Plans
-- [x] Setup CLI — `php index.php setup` ([docs/PLAN_SetupCli.md](PLAN_SetupCli.md))
+- [ ] Setup CLI — `php index.php setup` ([docs/PLAN_SetupCli.md](PLAN_SetupCli.md))
 - [x] CSP Nonce — ([docs/PLAN_CspNonce.md](PLAN_CspNonce.md))
 - [x] InjectHtml — ([docs/PLAN_InjectHtml.md](PLAN_InjectHtml.md))
 - [x] OpusSelect — ([docs/PLAN_OpusSelect.md](PLAN_OpusSelect.md))
 - [x] StandardFormElements — ([docs/PLAN_StandardFormElements.md](PLAN_StandardFormElements.md))
 
+### Config class
+- [ ] `Config::setTemporaryDbConfig()` — add a temporary runtime storage config entry (e.g. `_setup_temp` for `setup sql create`)
+- [ ] `Config::removeTemporaryDbConfig()` — remove a temporary runtime storage config entry (cleanup after execution)
+
 ### JS
 - [ ] Chart library (chart.js + optional API for data fetching)
+- [ ] Copy to clipboard — click icon to copy text (e.g. table cell, code block)
 
 ## Completed (v1.0)
 
