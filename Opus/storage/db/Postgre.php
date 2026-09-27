@@ -58,7 +58,7 @@ class Postgre extends AbstractDb
 					'storage\db\dbConnect',
 					[
 						'message' => $event->getMessage(),
-						'details' => (is_object($this->handle))
+						'details' => (isset($this->handle))
 							? print_r($this->handle->errorInfo(), true)
 							: null
 					],

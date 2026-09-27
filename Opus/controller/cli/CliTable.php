@@ -5,8 +5,8 @@
  * @Version: 1.0
  * @Author: Tomasz Ulazowski
  * @Date:   2026-03-28 17:31:50
- * @Last Modified by:   Tomasz Ulazowski
- * @Last Modified time: 2026-03-28 17:49:30
+ * @Last Modified by:   Tomasz Ułazowski
+ * @Last Modified time: 2026-09-25 21:12:30
  **/
 
 namespace Opus\controller\cli;
@@ -36,17 +36,17 @@ class CliTable
 	 *                        - CliTable::HEAD_POSITION_VERTICAL
 	 *
 	 * @throws ControllerException When head validation fails
-	 * @return mixed
+	 * @return void
 	 */
 	public static function writeTable(
 		array $array,
 		string $position = self::HEAD_POSITION_HORIZONTAL
-	): mixed {
+	): void {
 		// Validate head structure
 		self::headValidate($array);
 
 		// Write table based on head position
-		return match ($position) {
+		match ($position) {
 			self::HEAD_POSITION_HORIZONTAL => self::writeTableHorizontal($array, $position),
 			self::HEAD_POSITION_VERTICAL => self::writeTableVertical($array, $position),
 			default => throw new ControllerException(
@@ -186,17 +186,17 @@ class CliTable
 		// Calculate column widths and initialize variables
 		$gapColumn = self::maxStrlenFromColumns($array, $position);
 		$countCol = count($array['head']['text']);
-		$state = ['color' => false];
 
 		$writeRow = function (string $text, int $row, int $gap, ?string $color = null) use ($countCol): void {
 			$newLine = ($row === $countCol - 1) ? "s |\n" : "s |";
-			$format = "%" . $gap . $newLine;
 
 			if ($color !== null) {
+				$ansiLen = mb_strlen(CliColor::write('', $color, null, false));
 				$text = CliColor::write($text, $color, null, false);
+				$gap += $ansiLen;
 			}
 
-			printf($format, $text);
+			printf(" %" . $gap . $newLine, $text);
 		};
 
 		foreach ($array as $column) {
@@ -205,22 +205,14 @@ class CliTable
 				continue;
 			}
 
-			// Handle colored columns
-			if (isset($column['color'])) {
+			for ($row = 0; $row < $countCol; $row++) {
+				$color = null;
 
-				for ($row = 0; $row < $countCol; $row++) {
+				if (isset($column['color'])) {
 					$color = is_array($column['color']) ? $column['color'][$row] : $column['color'];
-					$writeRow($column['text'][$row], $row, $gapColumn[$row] + 12, $color);
 				}
 
-				$state['color'] = true;
-				continue;
-			}
-
-			// Handle uncolored columns
-			foreach ($column['text'] as $row => $cell) {
-				$addColorGap = $state['color'] ? 12 : 1;
-				$writeRow($cell, $row, $gapColumn[$row] + $addColorGap);
+				$writeRow((string) $column['text'][$row], $row, $gapColumn[$row], $color);
 			}
 		}
 

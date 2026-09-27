@@ -108,6 +108,18 @@ class EncryptStorageConfig
 	}
 
 	/**
+	 * Encrypts a single value
+	 *
+	 * @param string $value Plain text value to encrypt
+	 * @return string Encrypted value (base64 encoded)
+	 * @throws Exception if the encryption attempt fails
+	 */
+	public static function encryptValue(string $value): string
+	{
+		return (new self())->encrypt($value);
+	}
+
+	/**
 	 * Value decryption function
 	 *
 	 * @param ?string $value

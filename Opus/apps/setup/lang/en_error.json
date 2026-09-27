@@ -2,7 +2,7 @@
 	"setup": {
 		"help": {
 			"message": "Required parameters: php index.php setup <command>",
-			"details": "Available commands:\n  welcome  - welcome message after installation\n  check    - system diagnostics, JSON report\n  repair   - fix filesystem/config (does not touch DB)\n\nInstall and reset: sudo bash vendor/Opus/bin/install.sh | sudo bash vendor/Opus/bin/reset.sh",
+			"details": "Available commands:\n  welcome  - welcome message after installation\n  check    - system diagnostics, JSON report\n  repair   - fix filesystem/config (does not touch DB)\n  sql      - execute or reset app SQL files\n\nInstall and reset: sudo bash vendor/Opus/bin/install.sh | sudo bash vendor/Opus/bin/reset.sh",
 			"check": {
 				"message": "System diagnostics",
 				"details": "Checks directories, permissions, DB connection, roles, schemas and tables.\nSaves report to config/setup_report.json"
@@ -10,6 +10,36 @@
 			"repair": {
 				"message": "Filesystem and config repair",
 				"details": "Fixes missing directories and permissions. Does not modify the database."
+			},
+			"sql": {
+				"message": "Execute or reset application SQL files",
+				"details": "Usage: php index.php setup sql <create|reset> <app-name>\n\n  create  - execute all SQL files for the application\n  reset   - drop application schema (CASCADE)"
+			}
+		},
+		"sql": {
+			"arguments": {
+				"message": "Invalid arguments: $value$",
+				"details": "Usage: php index.php setup sql <create|reset> <app-name>"
+			},
+			"command": {
+				"message": "Unknown SQL command: $value$",
+				"details": "Available commands: create, reset"
+			},
+			"app": {
+				"message": "Application not found in configuration: $value$",
+				"details": "Check the apps array in global.json"
+			},
+			"role": {
+				"message": "SQL commands require role = dev (current: $value$)",
+				"details": "Set \"role\": \"dev\" in global.json"
+			},
+			"schema": {
+				"message": "Schema file not found: $value$",
+				"details": "Application must have apps/{app}/sql/00-schema.sql"
+			},
+			"schema_parse": {
+				"message": "CREATE SCHEMA statement not found in: $value$",
+				"details": "File must contain: CREATE SCHEMA [IF NOT EXISTS] \"schema_name\""
 			}
 		}
 	}

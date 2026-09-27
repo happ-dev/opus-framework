@@ -115,7 +115,9 @@ abstract class AbstractException extends Exception implements InterfaceControlle
 
 		// Handle variable replacement
 		if (empty($value)) {
-			$exError = isset($error->{$messageType}) ? $error->{$messageType} : null;
+			$exError = isset($error->{$messageType})
+				? str_replace('$value$', '', $error->{$messageType})
+				: null;
 			return;
 		}
 

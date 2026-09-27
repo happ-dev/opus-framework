@@ -6,10 +6,12 @@
  * @Author: Tomasz Ułazowski
  * @Date:   2026-08-26 20:44:04
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-08-29 20:48:26
+ * @Last Modified time: 2026-09-23 21:05:36
  **/
 
 namespace Opus\apps\setup\src;
+
+define('SETUP_ERROR_FILE', __DIR__ . '/../lang/' . $_SESSION['lang'] . '_error.json');
 
 use Opus\controller\InterfaceCliController;
 use Opus\controller\cli\CliArguments;
@@ -40,6 +42,7 @@ class SetupController implements InterfaceCliController
 			'welcome' => $this->welcome(),
 			'check' => SetupCheck::doCheck(),
 			'repair' => SetupRepair::doRepair(),
+			'sql' => SetupSQL::doSQL($this->arguments),
 			default => throw new ControllerException(
 				'controller\cli\argument',
 				['message' => [$this->arguments[0], 'setup']],

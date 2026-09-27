@@ -5,8 +5,8 @@
  * @Version: 1.0
  * @Author: Tomasz Ułazowski
  * @Date:   2026-01-27 13:29:20
- * @Last Modified by:   Tomasz Ulazowski
- * @Last Modified time: 2026-04-19 13:59:53
+ * @Last Modified by:   Tomasz Ułazowski
+ * @Last Modified time: 2026-09-24 20:16:39
  **/
 
 namespace Opus\config;
@@ -77,6 +77,39 @@ class Config extends ValidateGlobalConfig
 
 		// load trusted hosts configuration
 		$config->loadTrustedHostsConfig($objGlobalConfig->trusted_hosts);
+	}
+
+	/**
+	 * Adds a temporary runtime storage config entry for CLI operations
+	 * Encrypts user and pass, registers entry under 'temporary' key
+	 *
+	 * @param object $config {type, name, encoding, host, port, user, pass}
+	 * @return bool
+	 * @throws Exception if user or pass is null
+	 */
+	public static function setTemporaryDbConfig(object $config): bool
+	{
+		if (is_null($config->user) || is_null($config->pass)) {
+			throw new Exception('Temporary DB config requires user and pass');
+		}
+
+		$config->user = EncryptStorageConfig::encryptValue($config->user);
+		$config->pass = EncryptStorageConfig::encryptValue($config->pass);
+
+		self::$config->storage->temporary = $config;
+
+		return true;
+	}
+
+	/**
+	 * Removes the temporary runtime storage config entry
+	 *
+	 * @return bool
+	 */
+	public static function removeTemporaryDbConfig(): bool
+	{
+		unset(self::$config->storage->temporary);
+		return true;
 	}
 
 	/**

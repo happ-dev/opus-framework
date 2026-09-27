@@ -502,7 +502,7 @@ abstract class AbstractDb implements InterfaceDb
 				[
 					'message' => $event->getMessage(),
 					'details' => [
-						(is_object($this->handle)) ? print_r($this->handle->errorInfo(), true) : null,
+						(isset($this->handle)) ? print_r($this->handle->errorInfo(), true) : null,
 						print_r($params, true)
 					]
 				],
@@ -550,7 +550,7 @@ abstract class AbstractDb implements InterfaceDb
 				'storage\db\dbCursor',
 				[
 					'message' => $event->getMessage(),
-					'details' => (is_object($this->handle)) ? print_r($this->handle->errorInfo(), true) : null
+					'details' => (isset($this->handle)) ? print_r($this->handle->errorInfo(), true) : null
 				],
 				$this->storageException
 			);

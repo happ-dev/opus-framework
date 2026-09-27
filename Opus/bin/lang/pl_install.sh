@@ -1,4 +1,15 @@
 #!/bin/bash
+#
+# @Project: opus-skeleton
+# @Version: v1.0.0
+# @Author: Tomasz Ułazowski
+# @Date:   2026-08-29 12:41:07
+# @Last Modified by:   Tomasz Ułazowski
+# @Last Modified time: 2026-09-24 19:42:08
+#
+# sed -i -e 's/\r$//' /opt/happ/v1.0.0/apps/klayr-cockpit/bash/lang/pl_install.sh
+# chmod -R 774 /opt/happ/v1.0.0/apps/klayr-cockpit/bash/lang/pl_install.sh
+#!/bin/bash
 # Polish language file for install.sh
 
 MSG_HEADER="=== Opus Instalacja ==="

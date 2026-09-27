@@ -2,7 +2,7 @@
 	"setup": {
 		"help": {
 			"message": "Wymagane parametry: php index.php setup <komenda>",
-			"details": "Dostępne komendy:\n  welcome  - komunikat powitalny po instalacji\n  check    - diagnoza stanu, raport JSON\n  repair   - naprawa filesystem/config (nie rusza DB)\n\nInstalacja i reset: sudo bash vendor/Opus/bin/install.sh | sudo bash vendor/Opus/bin/reset.sh",
+			"details": "Dostępne komendy:\n  welcome  - komunikat powitalny po instalacji\n  check    - diagnoza stanu, raport JSON\n  repair   - naprawa filesystem/config (nie rusza DB)\n  sql      - wykonanie lub reset plików SQL aplikacji\n\nInstalacja i reset: sudo bash vendor/Opus/bin/install.sh | sudo bash vendor/Opus/bin/reset.sh",
 			"check": {
 				"message": "Diagnoza stanu systemu",
 				"details": "Sprawdza katalogi, uprawnienia, połączenie z DB, role, schematy i tabele.\nZapisuje raport do config/setup_report.json"
@@ -10,6 +10,36 @@
 			"repair": {
 				"message": "Naprawa filesystem i konfiguracji",
 				"details": "Naprawia brakujące katalogi i uprawnienia. Nie modyfikuje bazy danych."
+			},
+			"sql": {
+				"message": "Wykonanie lub reset plików SQL aplikacji",
+				"details": "Użycie: php index.php setup sql <create|reset> <nazwa-aplikacji>\n\n  create  - wykonaj wszystkie pliki SQL aplikacji\n  reset   - usuń schemat aplikacji (CASCADE)"
+			}
+		},
+		"sql": {
+			"arguments": {
+				"message": "Nieprawidłowe argumenty: $value$",
+				"details": "Użycie: php index.php setup sql <create|reset> <nazwa-aplikacji>"
+			},
+			"command": {
+				"message": "Nieznana komenda SQL: $value$",
+				"details": "Dostępne komendy: create, reset"
+			},
+			"app": {
+				"message": "Aplikacja nie znaleziona w konfiguracji: $value$",
+				"details": "Sprawdź tablicę apps w global.json"
+			},
+			"role": {
+				"message": "Komendy SQL wymagają role = dev (aktualnie: $value$)",
+				"details": "Ustaw \"role\": \"dev\" w global.json"
+			},
+			"schema": {
+				"message": "Plik schematu nie znaleziony: $value$",
+				"details": "Aplikacja musi mieć apps/{app}/sql/00-schema.sql"
+			},
+			"schema_parse": {
+				"message": "Nie znaleziono CREATE SCHEMA w: $value$",
+				"details": "Plik musi zawierać: CREATE SCHEMA [IF NOT EXISTS] \"nazwa_schematu\""
 			}
 		}
 	}
