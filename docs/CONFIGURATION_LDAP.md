@@ -1,29 +1,29 @@
 # LDAP Authentication — Samba DC Preparation
 
-Konfiguracja Samba DC wymagana aby Opus Framework mógł autentykować użytkowników przez LDAPS.
+Samba DC configuration required for Opus Framework to authenticate users via LDAPS.
 
-> **Wymaganie:** Instrukcja zakłada poprawnie skonfigurowane Samba AD DC z LDAPS (TLS) — patrz [03 – Instalacja i Konfiguracja Samba DC](../../home-network/docs/03-ct-dc-srv-1.md).
+> **Requirement:** This guide assumes a properly configured Samba AD DC with LDAPS (TLS) — see [03 – Samba DC Installation and Configuration](../../home-network/docs/03-ct-dc-srv-1.md).
 
-Szczegóły implementacji po stronie frameworka — patrz [PLAN_LdapAuth.md](PLAN_LdapAuth.md).
+For framework-side implementation details — see [PLAN_LdapAuth.md](PLAN_LdapAuth.md).
 
 ---
 
 ## 1. Service account (read-only)
 
-Opus potrzebuje konta serwisowego do przeszukiwania katalogu LDAP (wyszukanie użytkownika przed bind). Konto nie wymaga uprawnień zapisu.
+Opus needs a service account to search the LDAP directory (user lookup before bind). The account does not require write permissions.
 
 ```bash
 sudo samba-tool user create {project-name}-reader --description="Opus LDAP read-only service account"
 sudo samba-tool user setexpiry {project-name}-reader --noexpiry
 ```
 
-> **Uwaga:** Hasło tego konta będzie przechowywane zaszyfrowane w `local.json` na serwerze www. Użyć silnego hasła.
+> **Note:** The password for this account will be stored encrypted in `local.json` on the web server. Use a strong password.
 
 ---
 
-## 2. Grupy Opus
+## 2. Opus groups
 
-Grupy mapowane na poziomy dostępu w aplikacji Opus.
+Groups mapped to access levels in the Opus application.
 
 ```bash
 sudo samba-tool group add {project-name}-root --description="Full portal access, setup panel and all apps|opus.group.root"
@@ -36,7 +36,7 @@ sudo samba-tool group add {project-name}-public --description="Public content, n
 sudo samba-tool group add {project-name}-banned --description="Blocked account, access denied|opus.group.banned"
 ```
 
-| Grupa AD | Grupa Opus (`groups.groups`) | Poziom | Opis |
+| AD Group | Opus Group (`groups.groups`) | Level | Description |
 | :--- | :--- | :--- | :--- |
 | `{project-name}-root` | `Root` | 9 | Full portal access, setup panel and all apps |
 | `{project-name}-admins` | `Admin` | 7 | User and app configuration management |
@@ -47,64 +47,64 @@ sudo samba-tool group add {project-name}-banned --description="Blocked account, 
 | `{project-name}-public` | `Public` | 0 | Public content, no login required |
 | `{project-name}-banned` | `Banned` | -1 | Blocked account, access denied |
 
-Przypisanie użytkownika:
+Adding a user to a group:
 
 ```bash
-sudo samba-tool group addmembers {project-name}-admins <nazwa_uzytkownika>
+sudo samba-tool group addmembers {project-name}-admins <username>
 openssl s_client -connect dc.opus.local:636 -CAfile /usr/local/share/ca-certificates/opus-ca.crt
 ```
 
-> **Uwaga:** Użytkownik może należeć do wielu grup — Opus wybierze najwyższy poziom dostępu.
+> **Note:** A user can belong to multiple groups — Opus will select the highest access level.
 
 ---
 
-## 3. Dystrybucja certyfikatu CA
+## 3. CA certificate distribution
 
-Serwer www (`ct-www-srv-1`) musi ufać CA aby połączyć się z LDAPS. Skopiować certyfikat z DC:
+The web server (`ct-www-srv-1`) must trust the CA to connect via LDAPS. Copy the certificate from the DC:
 
 ```bash
-# Na ct-www-srv-1:
-sudo scp <nazwa_uzytkownika>@ct-dc-srv-1:/etc/samba/tls/ca-cert.pem /usr/local/share/ca-certificates/opus-ca.crt
+# On ct-www-srv-1:
+sudo scp <username>@ct-dc-srv-1:/etc/samba/tls/ca-cert.pem /usr/local/share/ca-certificates/opus-ca.crt
 sudo update-ca-certificates
 ```
 
-Konfiguracja klienta LDAP — edycja `/etc/ldap/ldap.conf`:
+LDAP client configuration — edit `/etc/ldap/ldap.conf`:
 
 ```text
 TLS_CACERT /usr/local/share/ca-certificates/opus-ca.crt
 ```
 
-Ścieżka do CA w konfiguracji Opus: `/usr/local/share/ca-certificates/opus-ca.crt`
+CA path in Opus configuration: `/usr/local/share/ca-certificates/opus-ca.crt`
 
 ---
 
-## 4. Weryfikacja LDAPS z serwera www
+## 4. LDAPS verification from the web server
 
 ```bash
-# Na ct-www-srv-1 (wymaga pakietu ldap-utils):
+# On ct-www-srv-1 (requires ldap-utils package):
 sudo apt install -y ldap-utils
 
 ldapsearch -H ldaps://dc.opus.local:636 \
   -D "CN={project-name}-reader,CN=Users,DC=opus,DC=local" \
   -W \
   -b "CN=Users,DC=opus,DC=local" \
-  "(sAMAccountName=<nazwa_uzytkownika>)" \
+  "(sAMAccountName=<username>)" \
   sn givenName mail memberOf
 ```
 
-Powinno zwrócić atrybuty użytkownika i listę grup (`memberOf`).
+Should return user attributes and group list (`memberOf`).
 
 ---
 
-## 5. Wymagania na serwerze www
+## 5. Web server requirements
 
 ```bash
-# Na ct-www-srv-1:
+# On ct-www-srv-1:
 sudo apt install -y php-ldap
 sudo systemctl restart apache2
 ```
 
-Weryfikacja:
+Verification:
 
 ```bash
 php -m | grep ldap
