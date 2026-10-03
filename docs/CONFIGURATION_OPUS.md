@@ -7,6 +7,7 @@
 - Composer
 - System packages: `psql`, `jq`, `sha256sum`
 - Apache with `www-data` group
+- For LDAP auth: `php-ldap` extension, Samba AD DC with LDAPS — see [CONFIGURATION_LDAP.md](CONFIGURATION_LDAP.md)
 
 ---
 
@@ -65,9 +66,10 @@ The script will:
 3. Create required directories with correct permissions
 4. Generate 4 passwords (or accept custom ones)
 5. Create `config/local.json` with database credentials
-6. Execute SQL files (roles, database, schemas, tables)
-7. Save plaintext passwords to `~/opus_secret.txt`
-8. Encrypt `config/local.json` and create `config/secret.key`
+6. Configure authentication driver (local or LDAP)
+7. Execute SQL files (roles, database, schemas, tables)
+8. Save plaintext passwords to `~/opus_secret.txt`
+9. Encrypt `config/local.json` and create `config/secret.key`
 
 > [!IMPORTANT]
 > Delete `~/opus_secret.txt` after memorizing the passwords.
@@ -104,6 +106,7 @@ The script will:
 4. Ask for PostgreSQL connection parameters
 5. Terminate active connections and drop database
 6. Drop roles (`opus_admin`, `opus_user`)
+6. Remove auth configuration from `config/global.json`
 7. Remove files: `local.json`, `secret.key`, `setup_report.json`, `install.log`
 
 ---
@@ -125,6 +128,12 @@ Runs system diagnostics and saves report to `config/setup_report.json`.
 - Roles: `opus_admin`, `opus_user`
 - Schemas: `groups`, `logs`, `users`, `demo`
 - Application users: `root`, `api`
+
+**LDAP checks** (when `auth.driver = ldap`):
+- `php-ldap` extension loaded
+- CA certificate readable
+- Service account bind (LDAPS connection)
+- `group_map` values exist in `groups.groups`
 
 Output example:
 
@@ -148,6 +157,13 @@ Output example:
     [OK]   schema: logs
     [OK]   schema: users
     [FAIL] schema: demo
+
+  LDAP:
+    [OK]   php-ldap
+    [OK]   ca_cert: /usr/local/share/ca-certificates/opus-ca.crt
+    [OK]   bind: CN=happ-reader,CN=Users,DC=opus,DC=local
+    [OK]   map: happ-root → Root
+    [OK]   map: happ-admins → Admin
 
   [FAIL] Issues detected. Run 'php index.php setup repair' to fix.
 ```
@@ -228,5 +244,5 @@ sudo php index.php setup repair
 
 | File | Permissions | Group | Description |
 |------|-------------|-------|-------------|
-| `config/local.json` | 0660 | www-data | Database credentials (encrypted) |
+| `config/local.json` | 0664 | www-data | Database credentials (encrypted) |
 | `config/secret.key` | 0660 | www-data | Encryption key |

@@ -8,5 +8,6 @@
 	"profile.alert.edit.success": "Twoje dane zostały zaktualizowane.",
 	"profile.alert.password.success": "Twoje hasło zostało zaktualizowane.",
 	"profile.alert.password.not.equal": "Hasła nie są identyczne!",
-	"profile.alert.password.requirements": "Min. 8 znaków, wielka litera i cyfra."
+	"profile.alert.password.requirements": "Min. 8 znaków, wielka litera i cyfra.",
+	"profile.ldap.readonly": "Profil zarządzany przez kontroler domeny. Zmiany nie są możliwe."
 }

@@ -51,6 +51,7 @@ abstract class ValidateGlobalConfig
 
 	private const STORAGE_REQUIRED_TYPES = ['pgsql', 'ibmodbc', 'mysql'];
 	private const REGEX_DB_ENCODING = ['options' => ['regexp' => '/^(UTF-?8|LATIN[0-9]|ASCII|UNICODE|WIN(1250|1251|1252)|ISO-?8859-[0-9]|CP[0-9]{3,4})$/i']];
+	private const AUTH_ALLOWED_DRIVERS = ['local', 'ldap'];
 	public const ALLOWED_LANGUAGES = [
 		'en' => ['US', 'GB', 'AU'],		// English variants
 		'pl' => ['PL']					// Polish variants
@@ -277,5 +278,66 @@ abstract class ValidateGlobalConfig
 		}
 
 		$hosts = sort($trustedHosts);
+	}
+
+	/**
+	 * Validates auth configuration
+	 *
+	 * @param object $config Auth config object
+	 * @return void
+	 * @throws Exception if auth configuration is invalid
+	 */
+	final protected function validateAuthConfig(object $config): void
+	{
+		$errors = [];
+
+		if (!isset($config->driver) || !in_array($config->driver, self::AUTH_ALLOWED_DRIVERS)) {
+			throw new Exception("Invalid auth driver. Allowed: " . implode(', ', self::AUTH_ALLOWED_DRIVERS));
+		}
+
+		if ($config->driver !== 'ldap') {
+			return;
+		}
+
+		$required = [
+			'host' => fn($v) => is_string($v) && str_starts_with($v, 'ldaps://'),
+			'port' => fn($v) => filter_var($v, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 65535]]),
+			'base_dn' => fn($v) => is_string($v) && !empty($v),
+			'user_dn' => fn($v) => is_string($v) && !empty($v),
+			'bind_dn' => fn($v) => is_string($v) && !empty($v),
+			'ca_cert' => fn($v) => is_string($v) && !empty($v),
+			'bind_password' => fn($v) => EncryptStorageConfig::isEncrypted($v),
+			'group_map' => fn($v) => is_object($v) && count((array) $v) > 0
+		];
+
+		foreach ($required as $field => $validator) {
+			if (!property_exists($config, $field)) {
+				$errors[] = "Missing required auth field: {$field}";
+				continue;
+			}
+
+			if ($validator($config->$field) === false) {
+				$errors[] = match ($field) {
+					'host' => "Auth host must start with 'ldaps://'",
+					'port' => 'Auth port must be between 1 and 65535',
+					'bind_password' => 'Auth bind_password must be encrypted',
+					'group_map' => 'Auth group_map must be a non-empty object',
+					default => "Invalid value for auth.{$field}"
+				};
+			}
+		}
+
+		// validate group_map values are strings
+		if (property_exists($config, 'group_map') && is_object($config->group_map)) {
+			foreach ($config->group_map as $adGroup => $opusGroup) {
+				if (!is_string($opusGroup) || empty($opusGroup)) {
+					$errors[] = "Invalid group_map value for '{$adGroup}': must be a non-empty string";
+				}
+			}
+		}
+
+		if (!empty($errors)) {
+			throw new Exception("Auth configuration validation failed:\n" . implode(PHP_EOL, $errors));
+		}
 	}
 }

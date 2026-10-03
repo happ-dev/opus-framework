@@ -4,6 +4,7 @@
 	"setup.check.directories": "Katalogi:",
 	"setup.check.files": "Pliki:",
 	"setup.check.database": "Baza danych:",
+	"setup.check.ldap": "LDAP:",
 	"setup.check.status.ok": "Wszystkie sprawdzenia przeszły pomyślnie.",
 	"setup.check.status.fail": "Wykryto problemy. Uruchom 'php index.php setup repair' aby naprawić.",
 	"setup.repair.header": "Naprawa systemu",

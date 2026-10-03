@@ -4,7 +4,7 @@
  * @Author: Tomasz Ułazowski
  * @Date:   2026-08-22 19:53:51
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-08-29 15:17:50
+ * @Last Modified time: 2026-10-03 12:46:04
 **/
 
 -- =============================================================================
@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS "users"."users" (
 	login 			CHARACTER VARYING(10) UNIQUE NOT NULL,
 	ulevel 			SMALLINT NOT NULL,
 	active 			BOOLEAN NOT NULL,
+	auth_type 		CHARACTER VARYING(5) NOT NULL DEFAULT 'local',
 	"password" 		CHARACTER VARYING(64) NOT NULL,
 	lastname 		CHARACTER VARYING(32) NOT NULL,
 	firstname 		CHARACTER VARYING(32) NOT NULL,
@@ -57,6 +58,7 @@ COMMENT ON COLUMN users.users.email IS 'E-mail address|opus.db.users.email';
 COMMENT ON COLUMN users.users.homephone IS 'Home phone|opus.db.users.homephone';
 COMMENT ON COLUMN users.users.cellphone IS 'Cell phone|opus.db.users.cellphone';
 COMMENT ON COLUMN users.users.lang IS 'Default language|opus.db.users.lang';
+COMMENT ON COLUMN users.users.auth_type IS 'Auth source|opus.db.users.auth_type';
 
 -- =============================================================================
 -- Data: users.users
@@ -121,7 +123,7 @@ COMMENT ON COLUMN users.vgroups.ulevel IS 'Access level|opus.db.vgroups.ulevel';
 -- =============================================================================
 CREATE OR REPLACE VIEW users.userdata AS
 SELECT DISTINCT
-	"id__users", "login", "ulevel", "gname", "active", "password", "lastname", "firstname", "email", "homephone", "cellphone", "lang"
+	"id__users", "login", "ulevel", "gname", "active", "password", "lastname", "firstname", "email", "homephone", "cellphone", "lang", "auth_type"
 FROM users.users
 	LEFT JOIN groups.groups ON (groups.glevel = users.ulevel);
 
@@ -141,3 +143,4 @@ COMMENT ON COLUMN users.userdata.email IS 'E-mail address|opus.db.userdata.email
 COMMENT ON COLUMN users.userdata.homephone IS 'Home phone|opus.db.userdata.homephone';
 COMMENT ON COLUMN users.userdata.cellphone IS 'Cell phone|opus.db.userdata.cellphone';
 COMMENT ON COLUMN users.userdata.lang IS 'Default language|opus.db.userdata.lang';
+COMMENT ON COLUMN users.userdata.auth_type IS 'Auth source|opus.db.userdata.auth_type';

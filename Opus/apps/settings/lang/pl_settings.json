@@ -6,5 +6,6 @@
 	"settings.alert.password.changed": "Hasło zostało zmienione!!!",
 	"settings.alert.password.user.id": "ID Użytkownika:",
 	"settings.alert.password.not.equal": "Hasła nie są zgodne",
-	"settings.alert.password.requirements": "Min. 8 znaków, wielka litera i cyfra"
+	"settings.alert.password.requirements": "Min. 8 znaków, wielka litera i cyfra",
+	"settings.ldap.readonly": "To jest konto domenowe. Hasło zarządzane przez kontroler domeny."
 }

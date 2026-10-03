@@ -8,5 +8,6 @@
 	"profile.alert.edit.success": "Your data have been updated.",
 	"profile.alert.password.success": "Your password has been updated.",
 	"profile.alert.password.not.equal": "Passwords do not match!",
-	"profile.alert.password.requirements": "Min. 8 characters, uppercase letter and digit."
+	"profile.alert.password.requirements": "Min. 8 characters, uppercase letter and digit.",
+	"profile.ldap.readonly": "Profile is managed by domain controller. Changes are not allowed."
 }

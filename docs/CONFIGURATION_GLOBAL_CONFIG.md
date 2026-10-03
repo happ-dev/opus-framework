@@ -204,9 +204,80 @@ With region:
 
 ---
 
+### `auth` — authentication driver (optional)
+
+If omitted, defaults to `{"driver": "local"}`.
+
+**Local authentication** (default — passwords stored in PostgreSQL):
+
+```json
+"auth": {
+	"driver": "local"
+}
+```
+
+**LDAP authentication** (Samba AD DC via LDAPS):
+
+| Field | Type | Required | Validation | Description |
+|-------|------|----------|------------|-------------|
+| `driver` | string | ✅ | `local` or `ldap` | Authentication driver |
+| `host` | string | ✅ | Must start with `ldaps://` | LDAP server URI |
+| `port` | int | ✅ | `1`–`65535` | LDAP port (636 for LDAPS) |
+| `base_dn` | string | ✅ | Non-empty | Base DN for the domain |
+| `user_dn` | string | ✅ | Non-empty | DN where user accounts are stored |
+| `bind_dn` | string | ✅ | Non-empty | Service account DN (read-only) |
+| `ca_cert` | string | ✅ | Non-empty | Path to CA certificate on the server |
+| `group_map` | object | ✅ | Non-empty, string values | AD group → Opus group mapping |
+
+```json
+"auth": {
+	"driver": "ldap",
+	"host": "ldaps://dc.opus.local",
+	"port": 636,
+	"base_dn": "DC=opus,DC=local",
+	"user_dn": "CN=Users,DC=opus,DC=local",
+	"bind_dn": "CN=happ-reader,CN=Users,DC=opus,DC=local",
+	"ca_cert": "/usr/local/share/ca-certificates/opus-ca.crt",
+	"group_map": {
+		"happ-root": "Root",
+		"happ-admins": "Admin",
+		"happ-powerusers": "PowerUsers",
+		"happ-users": "Users",
+		"happ-api": "Api",
+		"happ-guests": "Guests",
+		"happ-public": "Public",
+		"happ-banned": "Banned"
+	}
+}
+```
+
+- `group_map` keys are AD group CN names, values are `gname` from `groups.groups` table
+- User belonging to multiple AD groups gets the highest `glevel`
+- No match in `group_map` → login denied
+- LDAP users are synced to `users.users` with `auth_type = 'ldap'` on each login
+- Password change and profile edit are disabled for LDAP users
+
+**In `local.json`** (bind password — auto-encrypted on first run):
+
+| Field | Type | Required | Validation | Description |
+|-------|------|----------|------------|-------------|
+| `bind_password` | string | ✅ | Non-empty (encrypted after first run) | Service account password |
+
+```json
+"auth": {
+	"bind_password": "secret"
+}
+```
+
+> Service account, AD groups and CA certificate setup — see [CONFIGURATION_LDAP.md](CONFIGURATION_LDAP.md).
+
+> Requires `php-ldap` extension.
+
+---
+
 ## `config/local.json`
 
-Contains only the `storage` section with database credentials. See [storage](#storage--database-connections-required) above.
+Contains `storage` and optionally `auth` credentials. See [storage](#storage--database-connections-required) and [auth](#auth--authentication-driver-optional) above.
 
 ```json
 {
@@ -219,7 +290,10 @@ Contains only the `storage` section with database credentials. See [storage](#st
 				"port": "5432"
 			}
 		}
-	]
+	],
+	"auth": {
+		"bind_password": "secret"
+	}
 }
 ```
 
@@ -277,5 +351,57 @@ Contains only the `storage` section with database credentials. See [storage](#st
 	"email": "admin@opus.dev",
 
 	"trusted_hosts": ["localhost"]
+}
+```
+
+With LDAP auth:
+
+```json
+{
+	"apps": ["hello", "demo"],
+
+	"storage": [
+		{
+			"happ": {
+				"type": "pgsql",
+				"name": "happ",
+				"encoding": "UTF8"
+			}
+		}
+	],
+
+	"auth": {
+		"driver": "ldap",
+		"host": "ldaps://dc.opus.local",
+		"port": 636,
+		"base_dn": "DC=opus,DC=local",
+		"user_dn": "CN=Users,DC=opus,DC=local",
+		"bind_dn": "CN=happ-reader,CN=Users,DC=opus,DC=local",
+		"ca_cert": "/usr/local/share/ca-certificates/opus-ca.crt",
+		"group_map": {
+			"happ-root": "Root",
+			"happ-admins": "Admin",
+			"happ-powerusers": "PowerUsers",
+			"happ-users": "Users",
+			"happ-api": "Api",
+			"happ-guests": "Guests",
+			"happ-public": "Public",
+			"happ-banned": "Banned"
+		}
+	},
+
+	"navbar": {
+		"brand_icon": "img/app-indicator-icon-happ.svg",
+		"brand_text": "Opus",
+		"login_form": "yes"
+	},
+
+	"languages": ["pl", "en"],
+	"role": "dev",
+	"icon": "img/app-indicator-icon-happ.svg",
+	"title": "hApp",
+	"vendor": ["..."],
+	"email": "admin@opus.dev",
+	"trusted_hosts": ["localhost", "happ.local"]
 }
 ```

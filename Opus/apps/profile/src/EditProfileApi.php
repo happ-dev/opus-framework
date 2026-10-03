@@ -49,6 +49,14 @@ class EditProfileApi implements InterfaceApiController
 	 */
 	public function apiAction(): void
 	{
+		if (($_SESSION['auth_type'] ?? 'local') === 'ldap') {
+			echo json_encode([
+				'header' => $this->header(),
+				'body' => '<div class="alert alert-warning m-3">' . Lang::getInstance()->get('profile.ldap.readonly') . '</div>'
+			]);
+			return;
+		}
+
 		echo match ($this->requestData->request) {
 			self::REQUEST_EDIT_PROFILE_FORM => json_encode([
 				'header' => $this->header(),

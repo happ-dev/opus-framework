@@ -4,7 +4,7 @@
  * @Author: Tomasz Ułazowski
  * @Date:   2026-08-15 15:54:38
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-08-18 14:15:35
+ * @Last Modified time: 2026-10-03 12:29:18
  **/
 
 /**
@@ -24,17 +24,17 @@ dtSettings.bindTable({
 		[10, 25, 100],
 		[10, 25, 100],
 	],
-	drawByInputText: [1, 6, 7, 8],
-	drawBySelectMenu: [2, 4, 11],
-	hideColumns: [0, 3, 5, 10],
+	drawByInputText: [1, 7, 8, 9],
+	drawBySelectMenu: [2, 3, 5, 12],
+	hideColumns: [0, 4, 6, 11],
 	order: [0, "asc"],
 	columnDefs: [
 		{
 			targets: [
 				0, //  0 id__users
-				3, //  3 ulevel
-				5, //  5 password
-				10, // 10 cellphone
+				4, //  4 ulevel
+				6, //  6 password
+				11, // 11 cellphone
 			],
 		},
 		{
@@ -59,33 +59,36 @@ dtSettings.bindTable({
 			},
 		},
 		{
-			target: 4, //  4 gname
+			targets: [
+				3, //  3 auth_type
+				5, //  5 gname
+			],
 			type: "html",
 			width: "130px",
 			className: "ps-2 align-middle",
 		},
 		{
 			targets: [
-				6, //  6 lastname
-				7, //  7 firstname
-				8, //  8 email
+				7, //  7 lastname
+				8, //  8 firstname
+				9, //  9 email
 			],
 			type: "html",
 			width: "16%",
 			className: "ps-2 align-middle",
 		},
 		{
-			target: 9, //  9 homephone + cellphone
+			target: 10, // 10 homephone + cellphone
 			type: "html",
 			width: "130px",
 			orderable: false,
 			className: "align-middle",
 			render: function (data, type, row) {
-				const home = row[9] || "";
+				const home = row[10] || "";
 				const textHome = "<?= Opus\controller\lang\Lang::getInstance()->get('opus.db.users.homephone') ?>"
 					.split(" ")[1]
 					.replace(/^./, (c) => c.toUpperCase());
-				const cell = row[10] || "";
+				const cell = row[11] || "";
 				const textCell = "<?= Opus\controller\lang\Lang::getInstance()->get('opus.db.users.cellphone') ?>"
 					.split(" ")[1]
 					.replace(/^./, (c) => c.toUpperCase());
@@ -97,7 +100,7 @@ dtSettings.bindTable({
 			},
 		},
 		{
-			target: 11, // 11 lang
+			target: 12, // 12 lang
 			width: "120px",
 			className: "dt-body-center align-middle",
 		},
@@ -153,6 +156,11 @@ objSettingsResetEvent.bindAjaxModal({
 
 		const pass = document.getElementById("id_input_password");
 		const confirm = document.getElementById("id_input_confirm_password");
+
+		if (!pass || !confirm) {
+			objSettingsResetEvent.setFooterButtons("show");
+			return;
+		}
 
 		pass.pattern = "(?=.*[A-Z])(?=.*\\d).{8,}";
 

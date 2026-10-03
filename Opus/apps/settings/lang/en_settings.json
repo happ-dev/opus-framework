@@ -6,5 +6,6 @@
 	"settings.alert.password.changed": "The password has been changed!!!",
 	"settings.alert.password.user.id": "User ID:",
 	"settings.alert.password.not.equal": "Passwords do not match",
-	"settings.alert.password.requirements": "Min. 8 characters, uppercase letter and digit"
+	"settings.alert.password.requirements": "Min. 8 characters, uppercase letter and digit",
+	"settings.ldap.readonly": "This is a domain account. Password is managed by domain controller."
 }

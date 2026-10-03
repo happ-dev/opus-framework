@@ -10,7 +10,7 @@
 
 ### Plans
 - [x] Setup CLI — `php index.php setup` ([docs/PLAN_SetupCli.md](PLAN_SetupCli.md))
-- [ ] LDAP Authentication (Samba DC) — ([docs/PLAN_LdapAuth.md](PLAN_LdapAuth.md))
+- [x] LDAP Authentication (Samba DC) — ([docs/PLAN_LdapAuth.md](PLAN_LdapAuth.md))
 - [x] CSP Nonce — ([docs/PLAN_CspNonce.md](PLAN_CspNonce.md))
 - [x] InjectHtml — ([docs/PLAN_InjectHtml.md](PLAN_InjectHtml.md))
 - [x] OpusSelect — ([docs/PLAN_OpusSelect.md](PLAN_OpusSelect.md))

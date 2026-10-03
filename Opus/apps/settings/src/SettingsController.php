@@ -6,7 +6,7 @@
  * @Author: Tomasz Ułazowski
  * @Date:   2026-08-15 15:28:58
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-08-18 13:34:57
+ * @Last Modified time: 2026-10-03 12:17:35
  **/
 
 namespace Opus\apps\settings\src;
@@ -74,6 +74,19 @@ class SettingsController implements InterfaceIndexController
 			'comment' => 'opus.db.users.active'
 		];
 		StandardFormElements::booleanValue($elements->active, $options);
+
+		// input_settings-auth_type
+		$elements->authType = [
+			'attname' => 'settings-auth-type',
+			'comment' => 'opus.db.users.auth_type',
+			'template' => [
+				'text' => ['LDAP', 'local'],
+				'value' => ['ldap', 'local'],
+				'select-opus' => true,
+				'multiple' => true
+			]
+		];
+		StandardFormElements::selectValue($elements->authType, $options);
 
 		// input_settings-gname
 		$elements->gname = [
@@ -163,29 +176,31 @@ class SettingsController implements InterfaceIndexController
 				'id__users',									//  0 id__users
 				$elements->login['el'],							//  1 login
 				$elements->active['el'],						//  2 active
-				'ulevel',										//  3 ulevel
-				$elements->gname['el'],							//  4 gname
-				'password',										//  5 password
-				$elements->lastname['el'],						//  6 lastname
-				$elements->firstname['el'],						//  7 firstname
-				$elements->email['el'],							//  8 email
-				$lang->get('settings.table.thead.phone'),		//  9 homephone
-				'cellphone',									// 10 cellphone
-				$elements->lang['el']							// 11 lang
+				$elements->authType['el'],						//  3 auth_type
+				'ulevel',										//  4 ulevel
+				$elements->gname['el'],							//  5 gname
+				'password',										//  6 password
+				$elements->lastname['el'],						//  7 lastname
+				$elements->firstname['el'],						//  8 firstname
+				$elements->email['el'],							//  9 email
+				$lang->get('settings.table.thead.phone'),		// 10 homephone
+				'cellphone',									// 11 cellphone
+				$elements->lang['el']							// 12 lang
 			],
 			'tfoot' => [
 				'id__users',								//  0 id__users
 				$lang->get('opus.db.users.login'),			//  1 login
 				$lang->get('opus.db.users.active'),			//  2 active
-				$lang->get('opus.db.users.ulevel'),			//  3 ulevel
-				$lang->get('opus.db.groups.gname'),			//  4 gname
-				$lang->get('opus.db.users.password'),		//  5 password
-				$lang->get('opus.db.users.lastname'),		//  6 lastname
-				$lang->get('opus.db.users.firstname'),		//  7 firstname
-				$lang->get('opus.db.users.email'),			//  8 email
-				$lang->get('settings.table.thead.phone'),	//  9 homephone
-				$lang->get('opus.db.users.cellphone'),		// 10 cellphone
-				$lang->get('opus.db.users.lang')			// 11 lang
+				$lang->get('opus.db.users.auth_type'),		//  3 auth_type
+				$lang->get('opus.db.users.ulevel'),			//  4 ulevel
+				$lang->get('opus.db.groups.gname'),			//  5 gname
+				$lang->get('opus.db.users.password'),		//  6 password
+				$lang->get('opus.db.users.lastname'),		//  7 lastname
+				$lang->get('opus.db.users.firstname'),		//  8 firstname
+				$lang->get('opus.db.users.email'),			//  9 email
+				$lang->get('settings.table.thead.phone'),	// 10 homephone
+				$lang->get('opus.db.users.cellphone'),		// 11 cellphone
+				$lang->get('opus.db.users.lang')			// 12 lang
 			],
 			'cname' => false,
 			'tbody' => false

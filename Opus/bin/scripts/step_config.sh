@@ -41,7 +41,7 @@ step_config() {
 		'{storage: [{($key): {user: $user, pass: $pass, host: $host, port: $port}}]}' \
 		> "$LOCAL_JSON"
 
-	chmod 0660 "$LOCAL_JSON"
+	chmod 0664 "$LOCAL_JSON"
 	chgrp www-data "$LOCAL_JSON"
 	[ -n "$SUDO_USER" ] && chown "${SUDO_USER}" "$LOCAL_JSON"
 

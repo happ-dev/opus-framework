@@ -6,7 +6,7 @@
  * @Author: Tomasz Ułazowski
  * @Date:   2026-01-27 13:29:20
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-09-24 20:16:39
+ * @Last Modified time: 2026-10-02 20:09:02
  **/
 
 namespace Opus\config;
@@ -77,6 +77,9 @@ class Config extends ValidateGlobalConfig
 
 		// load trusted hosts configuration
 		$config->loadTrustedHostsConfig($objGlobalConfig->trusted_hosts);
+
+		// load auth configuration
+		$config->loadAuthConfig($objGlobalConfig->auth ?? null);
 	}
 
 	/**
@@ -332,5 +335,43 @@ class Config extends ValidateGlobalConfig
 
 		// validate trusted hosts configuration
 		$this->validateTrustedHostsConfig(self::$config->trustedHosts);
+	}
+
+	/**
+	 * Loads auth configuration from global.config and local.config
+	 * Defaults to local driver when auth section is not defined
+	 *
+	 * @param ?object $auth Auth config from global.json (null = local driver)
+	 * @return void
+	 * @throws Exception if auth configuration is invalid
+	 */
+	private function loadAuthConfig(?object $auth = null): void
+	{
+		if ($auth === null || ($auth->driver ?? 'local') === 'local') {
+			self::$config->auth = (object) ['driver' => 'local'];
+			return;
+		}
+
+		self::$config->auth = $auth;
+
+		// load bind_password from local.json
+		$objLocalConfig = Json::loadJsonFile(self::OPUS_LOCAL_CONFIG);
+
+		if (isset($objLocalConfig->auth->bind_password)) {
+			self::$config->auth->bind_password = $objLocalConfig->auth->bind_password;
+		}
+
+		// encrypt bind_password if not already encrypted
+		EncryptStorageConfig::encryptAuthConfig();
+
+		// reload after encryption
+		$objLocalConfig = Json::loadJsonFile(self::OPUS_LOCAL_CONFIG);
+
+		if (isset($objLocalConfig->auth->bind_password)) {
+			self::$config->auth->bind_password = $objLocalConfig->auth->bind_password;
+		}
+
+		// validate auth configuration
+		$this->validateAuthConfig(self::$config->auth);
 	}
 }

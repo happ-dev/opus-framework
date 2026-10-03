@@ -269,4 +269,37 @@ class EncryptStorageConfig
 			throw new Exception('Encryption error: ' . $event->getMessage());
 		}
 	}
+
+	/**
+	 * Check and encrypt auth bind_password in local.json if not already encrypted
+	 *
+	 * @return bool Returns true if encryption was performed, false otherwise
+	 * @throws Exception If file operations fail or encryption errors occur
+	 */
+	public static function encryptAuthConfig(): bool
+	{
+		try {
+			$config = Json::loadJsonFile(Config::OPUS_LOCAL_CONFIG);
+
+			if (!isset($config->auth->bind_password) || self::isEncrypted($config->auth->bind_password)) {
+				return false;
+			}
+
+			$config->auth->bind_password = (new self())->encrypt($config->auth->bind_password);
+
+			$jsonNewContent = json_encode(
+				$config,
+				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+			) ?: throw new Exception('JSON encoding failed');
+
+			file_put_contents(Config::OPUS_LOCAL_CONFIG, $jsonNewContent)
+				?: throw new Exception('Failed to write to json file: ' . Config::OPUS_LOCAL_CONFIG);
+
+			chmod(Config::OPUS_LOCAL_CONFIG, 0660);
+			chgrp(Config::OPUS_LOCAL_CONFIG, 'www-data');
+			return true;
+		} catch (Exception $event) {
+			throw new Exception('Auth encryption error: ' . $event->getMessage());
+		}
+	}
 }

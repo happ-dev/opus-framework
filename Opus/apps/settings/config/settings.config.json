@@ -23,6 +23,7 @@
 				{ "db": "id__users" },
 				{ "db": "login" },
 				{ "db": "active" },
+				{ "db": "auth_type" },
 				{ "db": "ulevel" },
 				{ "db": "gname" },
 				{ "db": "password" },
@@ -36,6 +37,10 @@
 			"join": "LEFT JOIN groups.groups ON (groups.glevel = users.ulevel)",
 			"select": {
 				"ulevel": "SELECT glevel, gname FROM groups.groups ORDER BY glevel ASC;",
+				"auth_type": {
+					"value": ["local", "ldap"],
+					"text": ["Local", "LDAP"]
+				},
 				"lang": {
 					"value": ["pl", "en"],
 					"text": ["Polski", "English"]

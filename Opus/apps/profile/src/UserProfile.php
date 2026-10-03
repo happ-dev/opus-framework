@@ -6,7 +6,7 @@
  * @Author: Tomasz Ułazowski
  * @Date:   2026-08-18 16:00:00
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-08-20 19:35:17
+ * @Last Modified time: 2026-10-03 12:44:18
  **/
 
 namespace Opus\apps\profile\src;
@@ -27,6 +27,7 @@ class UserProfile
 		'ulevel',
 		'gname',
 		'active',
+		'auth_type',
 		'password',
 		'lastname',
 		'firstname',
@@ -74,6 +75,8 @@ class UserProfile
 	 */
 	private function formatUserData(array &$data): void
 	{
+		$isLdap = ($_SESSION['auth_type'] ?? 'local') === 'ldap';
+
 		$this->form->addElement(Buttons::standardButton(
 			'profile-change-password',
 			(object) [
@@ -81,7 +84,8 @@ class UserProfile
 				'icon' => 'bi-braces-asterisk',
 				'variant' => 'warning',
 				'size' => 'sm',
-				'attributes' => [
+				'disabled' => $isLdap,
+				'attributes' => $isLdap ? [] : [
 					'data-bs-toggle' => 'modal',
 					'data-bs-target' => '#id__opus-profile-change-password'
 				]
@@ -106,6 +110,8 @@ class UserProfile
 	 */
 	private function thead(): array
 	{
+		$isLdap = ($_SESSION['auth_type'] ?? 'local') === 'ldap';
+
 		$this->form->addElement(Buttons::standardButton(
 			'profile-edit',
 			(object) [
@@ -113,7 +119,8 @@ class UserProfile
 				'icon' => 'bi-pencil-square',
 				'variant' => 'primary',
 				'size' => 'sm',
-				'attributes' => [
+				'disabled' => $isLdap,
+				'attributes' => $isLdap ? [] : [
 					'data-bs-toggle' => 'modal',
 					'data-bs-target' => '#id__opus-profile-edit'
 				]

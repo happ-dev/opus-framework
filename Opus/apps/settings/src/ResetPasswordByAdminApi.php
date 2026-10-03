@@ -19,6 +19,7 @@ use Opus\controller\exception\ControllerException;
 use Opus\controller\lang\Lang;
 use Opus\controller\login\Login;
 use Opus\html\form\StandardForm;
+use Opus\storage\db\Db;
 
 /**
  * Handles admin password reset API — serves form and processes password change.
@@ -49,6 +50,14 @@ class ResetPasswordByAdminApi implements InterfaceApiController
 	 */
 	public function apiAction(): void
 	{
+		if ($this->isLdapAccount()) {
+			echo json_encode([
+				'header' => $this->header(),
+				'body' => '<div class="alert alert-warning m-3">' . Lang::getInstance()->get('settings.ldap.readonly') . '</div>'
+			]);
+			return;
+		}
+
 		echo match ($this->requestData->request) {
 			self::REQUEST_RESET_PASSWORD_BY_ADMIN_FORM => json_encode([
 				'header' => $this->header(),
@@ -169,5 +178,20 @@ class ResetPasswordByAdminApi implements InterfaceApiController
 				<span class="fw-bolder me-1">{$this->postData->input_id__users}</span>
 				HTML
 		]);
+	}
+
+	/**
+	 * Checks if the target account is LDAP-managed
+	 *
+	 * @return bool
+	 */
+	private function isLdapAccount(): bool
+	{
+		$result = Db::dbExecute([
+			'prepare' => 'SELECT auth_type FROM users.users WHERE id__users = :id',
+			':id' => $this->requestData->accountId
+		]);
+
+		return ($result[0]['auth_type'] ?? 'local') === 'ldap';
 	}
 }

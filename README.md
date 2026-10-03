@@ -18,4 +18,5 @@ See [docs/CONFIGURATION_OPUS.md](docs/CONFIGURATION_OPUS.md) for installation an
 - [docs/CONFIGURATION_GLOBAL_CONFIG.md](docs/CONFIGURATION_GLOBAL_CONFIG.md) — global.json & local.json full reference
 - [docs/CONFIGURATION_APP_CONFIG.md](docs/CONFIGURATION_APP_CONFIG.md) — app.config.json full reference
 - [docs/CONFIGURATION_APP_DB.md](docs/CONFIGURATION_APP_DB.md) — app database setup (sql create / sql reset)
+- [docs/CONFIGURATION_LDAP.md](docs/CONFIGURATION_LDAP.md) — LDAP authentication (Samba DC preparation)
 - [docs/CHANGELOG.md](docs/CHANGELOG.md) — completed features and remaining tasks

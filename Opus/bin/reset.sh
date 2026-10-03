@@ -141,6 +141,16 @@ PGPASSWORD="$PG_PASS" psql -h "$DB_HOST" -p "$DB_PORT" -U postgres -c \
 
 echo -e "  ${GREEN}[OK]${NC} ROLE $ROLE_USER"
 
+# --- Remove auth config ---
+echo -e "\n${YELLOW}[...]${NC} ${MSG_RESET_AUTH}"
+
+if jq -e '.auth' "$GLOBAL_JSON" > /dev/null 2>&1; then
+	jq 'del(.auth)' "$GLOBAL_JSON" > "${GLOBAL_JSON}.tmp" && mv "${GLOBAL_JSON}.tmp" "$GLOBAL_JSON"
+	echo -e "  ${GREEN}[OK]${NC} auth (global.json)"
+else
+	echo -e "  ${YELLOW}[--]${NC} auth (global.json)"
+fi
+
 # --- Remove files ---
 echo -e "\n${YELLOW}[...]${NC} ${MSG_RESET_FILES}"
 

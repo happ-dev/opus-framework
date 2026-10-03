@@ -59,6 +59,7 @@ STEP_FILES=(
 	"step_passwords.sh"
 	"step_config.sh"
 	"step_sql.sh"
+	"step_auth.sh"
 	"step_secret.sh"
 )
 
@@ -81,6 +82,7 @@ step_directories
 step_passwords
 step_config
 step_sql
+step_auth
 step_secret
 
 # --- Encrypt config + fix secret.key owner ---

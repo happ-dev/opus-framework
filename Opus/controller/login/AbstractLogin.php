@@ -12,6 +12,7 @@
 namespace Opus\controller\login;
 
 use Opus\config\Config;
+use Opus\config\EncryptStorageConfig;
 use Opus\controller\cli\CliColor;
 use Opus\controller\request\Request;
 use Opus\controller\lang\Lang;
@@ -188,6 +189,27 @@ abstract class AbstractLogin
 	}
 
 	/**
+	 * Returns auth type for user
+	 *
+	 * @param string $user User login
+	 * @param string $storageException Storage exception type
+	 * @return string|false 'local', 'ldap' or false if user not found
+	 */
+	protected function getAuthType(string $user, string $storageException = StorageException::TYPE_PAGE_EXCEPTION): string|false
+	{
+		$result = Db::dbExecute(
+			[
+				'prepare' => 'SELECT auth_type FROM users.users WHERE login = :user',
+				':user' => $user
+			],
+			null,
+			$storageException
+		);
+
+		return $result[0]['auth_type'] ?? false;
+	}
+
+	/**
 	 * Checks if the provided user account is enabled
 	 *
 	 * @param string $user User login
@@ -209,6 +231,33 @@ abstract class AbstractLogin
 		return (isset($result[0]['bool']) && $result[0]['bool'] === true)
 			? $result[0]['bool']
 			: false;
+	}
+
+	/**
+	 * Authenticates user against LDAP and returns attributes with level
+	 *
+	 * @param string $user sAMAccountName
+	 * @param string $pass User password
+	 * @return object|false {attrs: stdClass, level: int} or false
+	 */
+	protected function authenticateLdap(string $user, string $pass): object|false
+	{
+		$config = clone Config::getConfig()->auth;
+		$config->bind_password = EncryptStorageConfig::decrypt($config->bind_password);
+
+		$ldap = new LdapAuth($config);
+
+		if (!$ldap->authenticate($user, $pass)) {
+			return false;
+		}
+
+		$level = $ldap->resolveLevel($ldap->getUserGroups());
+
+		if ($level === false) {
+			return false;
+		}
+
+		return (object) ['attrs' => $ldap->getUserAttributes(), 'level' => $level];
 	}
 
 	/**
@@ -242,6 +291,49 @@ abstract class AbstractLogin
 	}
 
 	/**
+	 * Syncs LDAP user to local database (insert or update)
+	 *
+	 * @param string $user Login
+	 * @param object $attrs Attributes from LdapAuth::getUserAttributes()
+	 * @param int $level Resolved glevel
+	 * @param string $storageException Storage exception type
+	 */
+	protected function syncLdapUser(
+		string $user,
+		object $attrs,
+		int $level,
+		string $storageException = StorageException::TYPE_PAGE_EXCEPTION
+	): void {
+		Db::dbExecute(
+			[
+				'prepare' => <<<SQL
+					INSERT INTO users.users
+						(login, ulevel, active, password, lastname, firstname, email, homephone, cellphone, lang, auth_type)
+					VALUES
+						(:login, :ulevel, TRUE, '', :lastname, :firstname, :email, :homephone, :cellphone, :lang, 'ldap')
+					ON CONFLICT (login) DO UPDATE SET
+						ulevel = :ulevel,
+						lastname = :lastname,
+						firstname = :firstname,
+						email = :email,
+						homephone = :homephone,
+						cellphone = :cellphone
+				SQL,
+				':login' => $user,
+				':ulevel' => $level,
+				':lastname' => $attrs->lastname ?? '',
+				':firstname' => $attrs->firstname ?? '',
+				':email' => $attrs->email,
+				':homephone' => $attrs->homephone,
+				':cellphone' => $attrs->cellphone,
+				':lang' => $attrs->lang ?? Config::getConfig()->langs[0]
+			],
+			null,
+			$storageException
+		);
+	}
+
+	/**
 	 * Sets the logged-in user session variables
 	 *
 	 * @param string $user User login
@@ -260,7 +352,7 @@ abstract class AbstractLogin
 			[
 				'prepare' => <<<SQL
 					SELECT
-						login, ulevel, lastname, firstname, email, homephone, cellphone, lang
+						login, ulevel, lastname, firstname, email, homephone, cellphone, lang, auth_type
 					FROM users.users WHERE login = :user AND password = :pass
 				SQL,
 				':user' => $user,
@@ -280,8 +372,135 @@ abstract class AbstractLogin
 		$_SESSION['homephone'] = $result[0]['homephone'];
 		$_SESSION['cellphone'] = $result[0]['cellphone'];
 		$_SESSION['lang'] = $result[0]['lang'];
+		$_SESSION['auth_type'] = $result[0]['auth_type'];
 		$_SESSION['id'] = hash('sha256', $result[0]['login'] . date('Y-m-d H:i:s'));
 		$_SESSION['csrf'] = [bin2hex(random_bytes(32))];
+	}
+
+	/**
+	 * Sets session variables by login only (without password verification)
+	 *
+	 * @param string $user User login
+	 * @param string $storageException Storage exception type
+	 */
+	protected function setLoggedByLogin(
+		string $user,
+		string $storageException = StorageException::TYPE_PAGE_EXCEPTION
+	): void {
+		$result = Db::dbExecute(
+			[
+				'prepare' => <<<SQL
+					SELECT
+						login, ulevel, lastname, firstname, email, homephone, cellphone, lang, auth_type
+					FROM users.users WHERE login = :user
+				SQL,
+				':user' => $user
+			],
+			null,
+			$storageException
+		);
+
+		$_SESSION['logged'] = true;
+		$_SESSION['login'] = $result[0]['login'];
+		$_SESSION['level'] = $result[0]['ulevel'];
+		$_SESSION['lastname'] = $result[0]['lastname'];
+		$_SESSION['firstname'] = $result[0]['firstname'];
+		$_SESSION['email'] = $result[0]['email'];
+		$_SESSION['homephone'] = $result[0]['homephone'];
+		$_SESSION['cellphone'] = $result[0]['cellphone'];
+		$_SESSION['lang'] = $result[0]['lang'];
+		$_SESSION['auth_type'] = $result[0]['auth_type'];
+		$_SESSION['id'] = hash('sha256', $result[0]['login'] . date('Y-m-d H:i:s'));
+		$_SESSION['csrf'] = [bin2hex(random_bytes(32))];
+	}
+
+	/**
+	 * Processes login based on auth type
+	 *
+	 * @param string $user User login
+	 * @param string $pass User password
+	 * @param string $storageEx Storage exception type
+	 * @param string $controllerEx Controller exception type
+	 */
+	private function processLogin(
+		string $user,
+		string $pass,
+		string $storageEx = StorageException::TYPE_PAGE_EXCEPTION,
+		string $controllerEx = ControllerException::TYPE_PAGE_EXCEPTION
+	): void {
+		$authType = $this->getAuthType($user, $storageEx);
+
+		match (true) {
+			$authType === 'local' => $this->processLocalLogin($user, $pass, $storageEx, $controllerEx),
+			$authType === 'ldap' => $this->processLdapLogin($user, $pass, $storageEx, $controllerEx),
+			$authType === false && Config::getConfig()->auth->driver === 'ldap'
+				=> $this->processFirstLdapLogin($user, $pass, $storageEx, $controllerEx),
+			default => throw new ControllerException(
+				'controller\login\findUser',
+				['message' => $user, 'details' => Config::getConfig()->email],
+				$controllerEx
+			)
+		};
+	}
+
+	/**
+	 * @param string $user User login
+	 * @param string $pass User password
+	 * @param string $storageEx Storage exception type
+	 * @param string $controllerEx Controller exception type
+	 */
+	private function processLocalLogin(string $user, string $pass, string $storageEx, string $controllerEx): void
+	{
+		if (!$this->isUserAccountEnabled($user, $storageEx)) {
+			throw new ControllerException(
+				'controller\login\isUserAccountEnabled',
+				['message' => $user, 'details' => Config::getConfig()->email],
+				$controllerEx
+			);
+		}
+		if (!$this->isPasswordMatches($user, $pass, $storageEx)) {
+			throw new ControllerException('controller\login\isPasswordMatches', null, $controllerEx);
+		}
+		$this->setLogged($user, $pass, $storageEx);
+	}
+
+	/**
+	 * @param string $user User login
+	 * @param string $pass User password
+	 * @param string $storageEx Storage exception type
+	 * @param string $controllerEx Controller exception type
+	 */
+	private function processLdapLogin(string $user, string $pass, string $storageEx, string $controllerEx): void
+	{
+		if (!$this->isUserAccountEnabled($user, $storageEx)) {
+			throw new ControllerException(
+				'controller\login\isUserAccountEnabled',
+				['message' => $user, 'details' => Config::getConfig()->email],
+				$controllerEx
+			);
+		}
+		$ldapResult = $this->authenticateLdap($user, $pass);
+		if ($ldapResult === false) {
+			throw new ControllerException('controller\login\isPasswordMatches', null, $controllerEx);
+		}
+		$this->syncLdapUser($user, $ldapResult->attrs, $ldapResult->level, $storageEx);
+		$this->setLoggedByLogin($user, $storageEx);
+	}
+
+	/**
+	 * @param string $user User login
+	 * @param string $pass User password
+	 * @param string $storageEx Storage exception type
+	 * @param string $controllerEx Controller exception type
+	 */
+	private function processFirstLdapLogin(string $user, string $pass, string $storageEx, string $controllerEx): void
+	{
+		$ldapResult = $this->authenticateLdap($user, $pass);
+		if ($ldapResult === false) {
+			throw new ControllerException('controller\login\isPasswordMatches', null, $controllerEx);
+		}
+		$this->syncLdapUser($user, $ldapResult->attrs, $ldapResult->level, $storageEx);
+		$this->setLoggedByLogin($user, $storageEx);
 	}
 
 	/**
@@ -292,41 +511,8 @@ abstract class AbstractLogin
 	protected function loginPage(): void
 	{
 		$user = $this->getUserLoginFromPage();
-		$findResult = $this->findUser($user);
-
-		if ($findResult === false) {
-			throw new ControllerException(
-				'controller\login\findUser',
-				[
-					'message' => $user,
-					'details' => Config::getConfig()->email
-				]
-			);
-		}
-
-		$accountResult = $this->isUserAccountEnabled($user);
-
-		if ($accountResult === false) {
-			throw new ControllerException(
-				'controller\login\isUserAccountEnabled',
-				[
-					'message' => $user,
-					'details' => Config::getConfig()->email
-				]
-			);
-		}
-
 		$pass = $this->getUserPasswordFromPage();
-		$passResult = $this->isPasswordMatches($user, $pass);
-
-		if ($passResult === false) {
-			throw new ControllerException(
-				'controller\login\isPasswordMatches',
-				null
-			);
-		}
-
-		$this->setLogged($user, $pass);
+		$this->processLogin($user, $pass);
 		header('Location: ' . Request::url('index.php?page=main'));
 		exit;
 	}
@@ -339,44 +525,8 @@ abstract class AbstractLogin
 	protected function loginCli(): void
 	{
 		$user = $this->getUserLoginFromCli();
-		$findResult = $this->findUser($user, StorageException::TYPE_CLI_EXCEPTION);
-
-		if ($findResult === false) {
-			throw new ControllerException(
-				'controller\login\findUser',
-				[
-					'message' => $user,
-					'details' => Config::getConfig()->email
-				],
-				ControllerException::TYPE_CLI_EXCEPTION
-			);
-		}
-
-		$accountResult = $this->isUserAccountEnabled($user, StorageException::TYPE_CLI_EXCEPTION);
-
-		if ($accountResult === false) {
-			throw new ControllerException(
-				'controller\login\isUserAccountEnabled',
-				[
-					'message' => $user,
-					'details' => Config::getConfig()->email
-				],
-				ControllerException::TYPE_CLI_EXCEPTION
-			);
-		}
-
 		$pass = $this->getUserPasswordFromCli();
-		$passResult = $this->isPasswordMatches($user, $pass, StorageException::TYPE_CLI_EXCEPTION);
-
-		if ($passResult === false) {
-			throw new ControllerException(
-				'controller\login\isPasswordMatches',
-				null,
-				ControllerException::TYPE_CLI_EXCEPTION
-			);
-		}
-
-		$this->setLogged($user, $pass, StorageException::TYPE_CLI_EXCEPTION);
+		$this->processLogin($user, $pass, StorageException::TYPE_CLI_EXCEPTION, ControllerException::TYPE_CLI_EXCEPTION);
 	}
 
 	/**
@@ -386,45 +536,12 @@ abstract class AbstractLogin
 	 */
 	protected function loginApi(): void
 	{
-		$user = $_SERVER['PHP_AUTH_USER'];
-		$pass = $_SERVER['PHP_AUTH_PW'];
-		$findResult = $this->findUser($user, StorageException::TYPE_API_EXCEPTION);
-
-		if ($findResult === false) {
-			throw new ControllerException(
-				'controller\login\findUser',
-				[
-					'message' => $user,
-					'details' => Config::getConfig()->email
-				],
-				ControllerException::TYPE_API_EXCEPTION
-			);
-		}
-
-		$accountResult = $this->isUserAccountEnabled($user, StorageException::TYPE_API_EXCEPTION);
-
-		if ($accountResult === false) {
-			throw new ControllerException(
-				'controller\login\isUserAccountEnabled',
-				[
-					'message' => $user,
-					'details' => Config::getConfig()->email
-				],
-				ControllerException::TYPE_API_EXCEPTION
-			);
-		}
-
-		$passResult = $this->isPasswordMatches($user, $pass, StorageException::TYPE_API_EXCEPTION);
-
-		if ($passResult === false) {
-			throw new ControllerException(
-				'controller\login\isPasswordMatches',
-				null,
-				ControllerException::TYPE_API_EXCEPTION
-			);
-		}
-
-		$this->setLogged($user, $pass, StorageException::TYPE_API_EXCEPTION);
+		$this->processLogin(
+			$_SERVER['PHP_AUTH_USER'],
+			$_SERVER['PHP_AUTH_PW'],
+			StorageException::TYPE_API_EXCEPTION,
+			ControllerException::TYPE_API_EXCEPTION
+		);
 	}
 
 	/**
@@ -525,7 +642,7 @@ abstract class AbstractLogin
 			[
 				'prepare' => <<<SQL
 					SELECT
-						login, ulevel, lastname, firstname, email, homephone, cellphone, lang
+						login, ulevel, lastname, firstname, email, homephone, cellphone, lang, auth_type
 					FROM users.users WHERE login = :user
 				SQL,
 				':user' => $_SESSION['login']
@@ -540,6 +657,7 @@ abstract class AbstractLogin
 		$_SESSION['homephone'] = $result[0]['homephone'];
 		$_SESSION['cellphone'] = $result[0]['cellphone'];
 		$_SESSION['lang'] = $result[0]['lang'];
+		$_SESSION['auth_type'] = $result[0]['auth_type'];
 		$_SESSION['csrf'][] = bin2hex(random_bytes(32));
 		$_SESSION['csrf'] = array_slice($_SESSION['csrf'], -5);
 	}

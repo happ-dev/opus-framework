@@ -12,6 +12,8 @@
 namespace Opus\apps\setup\src;
 
 use Throwable;
+use Opus\config\Config;
+use Opus\config\EncryptStorageConfig;
 use Opus\controller\cli\CliColor;
 use Opus\controller\lang\Lang;
 use Opus\storage\db\Db;
@@ -30,7 +32,7 @@ class SetupCheck
 	];
 
 	public const EXPECTED_FILES = [
-		'config/local.json'  => ['perms' => '0660', 'group' => 'www-data'],
+		'config/local.json'  => ['perms' => '0664', 'group' => 'www-data'],
 		'config/secret.key'  => ['perms' => '0660', 'group' => 'www-data'],
 	];
 
@@ -53,6 +55,7 @@ class SetupCheck
 		$output .= $check->checkDirectories($lang);
 		$output .= $check->checkFiles($lang);
 		$output .= $check->checkDatabase($lang);
+		$output .= $check->checkLdap($lang);
 
 		$status = $check->resolveStatus();
 		$check->report['status'] = $status;
@@ -171,6 +174,73 @@ class SetupCheck
 	}
 
 	/**
+	 * Checks LDAP configuration when auth driver is ldap
+	 *
+	 * @param Lang $lang
+	 * @return string CLI output
+	 */
+	private function checkLdap(Lang $lang): string
+	{
+		try {
+			$auth = Config::getConfig()->auth ?? null;
+		} catch (Throwable) {
+			return '';
+		}
+
+		if (!$auth || ($auth->driver ?? 'local') !== 'ldap') {
+			return '';
+		}
+
+		$output = PHP_EOL . '  ' . CliColor::write($lang->get('setup.check.ldap'), CliColor::COLOR_YELLOW);
+
+		// php-ldap extension
+		$extOk = extension_loaded('ldap');
+		$this->report['ldap']['extension'] = $extOk;
+		$output .= $this->formatBool('php-ldap', $extOk);
+
+		if (!$extOk) {
+			return $output;
+		}
+
+		// CA certificate
+		$certOk = is_readable($auth->ca_cert ?? '');
+		$this->report['ldap']['ca_cert'] = $certOk;
+		$output .= $this->formatBool('ca_cert: ' . ($auth->ca_cert ?? ''), $certOk);
+
+		// Service account bind
+		$connOk = false;
+		try {
+			ldap_set_option(null, LDAP_OPT_X_TLS_CACERTFILE, $auth->ca_cert);
+			$conn = ldap_connect($auth->host, $auth->port);
+			if ($conn !== false) {
+				ldap_set_option($conn, LDAP_OPT_PROTOCOL_VERSION, 3);
+				ldap_set_option($conn, LDAP_OPT_REFERRALS, 0);
+				$pass = EncryptStorageConfig::decrypt($auth->bind_password);
+				$connOk = @ldap_bind($conn, $auth->bind_dn, $pass);
+				@ldap_unbind($conn);
+			}
+		} catch (Throwable) {
+		}
+		$this->report['ldap']['connection'] = $connOk;
+		$output .= $this->formatBool('bind: ' . ($auth->bind_dn ?? ''), $connOk);
+
+		// group_map — check if values exist in groups.groups
+		$groupMap = (array) ($auth->group_map ?? new \stdClass());
+		foreach ($groupMap as $adGroup => $gname) {
+			try {
+				$result = Db::dbArrayResult("SELECT 1 FROM groups.groups WHERE gname = '{$gname}'");
+				$exists = !empty($result);
+			} catch (Throwable) {
+				$exists = false;
+			}
+			$this->report['ldap']['group_map'][$adGroup] = $exists;
+			$output .= $this->formatBool("map: {$adGroup} → {$gname}", $exists);
+		}
+
+		return $output;
+	}
+
+	/**
 	 * Formats a boolean check result as CLI line
 	 *
 	 * @param string $label
@@ -280,6 +350,16 @@ class SetupCheck
 
 		foreach (['roles', 'schemas', 'app_users'] as $key) {
 			if (in_array(false, $db[$key] ?? [], true)) {
+				return 'FAIL';
+			}
+		}
+
+		$ldap = $this->report['ldap'] ?? [];
+		if (!empty($ldap)) {
+			if (!($ldap['extension'] ?? true) || !($ldap['ca_cert'] ?? true) || !($ldap['connection'] ?? true)) {
+				return 'FAIL';
+			}
+			if (in_array(false, $ldap['group_map'] ?? [], true)) {
 				return 'FAIL';
 			}
 		}
