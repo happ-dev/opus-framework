@@ -3,18 +3,20 @@
  * @Author: Tomasz Ulazowski
  * @Date:   2026-03-28 15:47:02
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-08-20 20:36:56
+ * @Last Modified time: 2026-10-18 12:10:00
  */
 
 :root,
 [data-bs-theme=light] {
 	--bs-opus-bg-sm-hover: rgba(25, 135, 86, 0.9);
 	--bs-opus-bg-sm-selected: rgba(12, 65, 40, 0.9);
-	--bs-opus-bg-sidebar: rgba(52, 58, 64, 0.9);
+	--bi-opus-bg-sidebar: rgba(52, 58, 64, 0.9);
 	--bs-opus-sidebar-bg-active: rgba(25, 135, 86, 0.9);
 	--bs-opus-sidebar-width: calc(var(--bs-body-font-size) * 4.6);
 	--bs-opus-sidebar-width-collapsed: 280px;
 	--bs-opus-modal-footer: 0 -2px 6px -2px rgba(0, 0, 0, 0.15);
+	--bi-opus-dashboard-body: rgba(52, 58, 64, 0.9);
+	--bi-opus-dashboard-footer: rgba(22, 23, 24, 0.9);
 	--bi-opus-lime: linear-gradient(to bottom, rgba(32, 128, 32, 0.9) 1%, rgba(50, 205, 50, 0.9));
 	--bs-opus-lime: 0 0 20px rgba(50, 205, 50, 0.9);
 	--bs-opus-lime-3d: 0 2px 4px rgba(32, 128, 32, 0.1), 0 4px 8px rgba(32, 128, 32, 0.15), 0 8px 16px rgba(32, 128, 32, 0.2), 0 16px 32px rgba(32, 128, 32, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -71,7 +73,7 @@
 }
 
 .bg-opus-sidebar-box-theme {
-	background-color: var(--bs-opus-bg-sidebar);
+	background-color: var(--bi-opus-bg-sidebar);
 	box-shadow: var(--bs-opus-black-3d);
 	border-radius: var(--bs-border-radius);
 }
@@ -208,7 +210,7 @@
 }
 
 .navbar-brand-opus-text {
-	font-size: calc(var(--bs-body-font-size) * 1.2) !important;
+	font-size: calc(var(--bs-body-font-size) * 1.3) !important;
 	filter: brightness(0) saturate(100%) invert(1) drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.8));
 	opacity: 0.8;
 	transition: opacity 0.2s ease;
@@ -238,7 +240,7 @@
 
 .nav-link-opus {
 	color: var(--bs-gray-200) !important;
-	font-size: calc(var(--bs-body-font-size) * 1.1) !important;
+	font-size: calc(var(--bs-body-font-size) * 1.2) !important;
 	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 	transition: 0.15s;
 }
@@ -265,8 +267,11 @@
 	filter: none;
 }
 
-.nav-tabs-opus {
-
+.dashboard-opus {
+	flex: 0 0 20%;
+	max-width: 20%;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 @media (max-width: 1399.98px) {
@@ -286,11 +291,8 @@
 		color: var(--bs-secondary-color) !important;
 	}
 
-	.dashboard-sm-opus {
-		padding-top: 1rem !important;
-		padding-left: 1.2rem !important;
-		padding-right: 0.8rem !important;
-		visibility: hidden !important;
+	.dashboard-opus.dashboard-opus-hidden {
+		display: none;
 	}
 
 }
@@ -410,7 +412,7 @@
 
 .sidebar-opus {
 	width: fit-content;
-	background: var(--bs-opus-bg-sidebar);
+	background: var(--bi-opus-bg-sidebar);
 	color: var(--bs-gray-200);
 	box-shadow: var(--bs-opus-black-3d);
 	overflow-y: auto;
@@ -426,12 +428,6 @@
 	position: fixed;
 }
 
-.async-page-opus {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-}
-
 .sidebar-body-opus .nav-link-opus.active {
 	background: none;
 	filter: brightness(0) saturate(100%) invert(48%) sepia(79%) saturate(383%) hue-rotate(93deg) brightness(95%) contrast(88%);
@@ -439,6 +435,12 @@
 
 .sidebar-body-opus .nav-link-opus.active:hover {
 	filter: brightness(0) saturate(100%) invert(48%) sepia(79%) saturate(383%) hue-rotate(93deg) brightness(95%) contrast(88%);
+}
+
+.async-page-opus {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
 }
 
 .async-page-header-opus {
@@ -626,6 +628,46 @@
 
 .table-opus-dt-row-0-btn-margin {
 	margin: 0px 0px 3px 0.25em;
+}
+
+.card-opus {
+	border: 0 !important;
+	box-shadow: var(--bs-box-shadow) !important;
+	border-radius: 0;
+}
+
+.card-header-opus-green {
+	border-radius: var(--bs-border-radius) var(--bs-border-radius) 0 0;
+	color: var(--bs-white);
+	background-image: var(--bi-opus-green);
+	box-shadow: var(--bs-opus-green-3d);
+}
+
+.card-header-opus-red {
+	border-radius: var(--bs-border-radius) var(--bs-border-radius) 0 0;
+	color: var(--bs-white);
+	background-image: var(--bi-opus-red);
+	box-shadow: var(--bs-opus-red-3d);
+}
+
+.card-header-opus-black {
+	border-radius: var(--bs-border-radius) var(--bs-border-radius) 0 0;
+	color: var(--bs-white);
+	background-image: var(--bi-opus-black);
+	box-shadow: var(--bs-opus-black-3d);
+}
+
+.card-body-opus {
+	background: var(--bi-opus-dashboard-body);
+	color: var(--bs-gray-200);
+}
+
+.card-footer-opus {
+	color: var(--bs-white);
+	background: var(--bi-opus-dashboard-footer);
+	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+	border-radius: 0 !important;
+	box-shadow: var(--bs-box-shadow);
 }
 
 .action-link-opus {

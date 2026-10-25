@@ -36,6 +36,9 @@ class ValidateSidebarItems
 		}
 
 		foreach ($element as $index => &$item) {
+			if ($item === 'hr') {
+				continue;
+			}
 			self::validateItem($item, $index);
 		}
 	}
@@ -103,6 +106,9 @@ class ValidateSidebarItems
 			}
 
 			foreach ($item['dropdown'] as $dIndex => &$dropdownItem) {
+				if ($dropdownItem === 'hr') {
+					continue;
+				}
 				self::validateItem($dropdownItem, $dIndex, true);
 			}
 		}

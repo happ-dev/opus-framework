@@ -79,6 +79,7 @@ class OpusAsyncPage {
 	 */
 	constructor() {
 		this.container = document.querySelector("main");
+		this.dashboard = document.querySelector(".dashboard-opus");
 		this.activeLink = null;
 		this.abortController = null;
 		this.init();
@@ -128,7 +129,8 @@ class OpusAsyncPage {
 		el.classList.add("active");
 		this.activeLink = el;
 
-		// show overlay
+		// hide dashboard and show overlay
+		this.dashboard?.classList.add("dashboard-opus-hidden");
 		const overlay = this.showOverlay();
 
 		// build url
@@ -180,6 +182,7 @@ class OpusAsyncPage {
 		this.abortController = null;
 		document.dispatchEvent(new CustomEvent("apage:closed", { detail: { app, event } }));
 		document.querySelector(selector)?.remove();
+		this.dashboard?.classList.remove("dashboard-opus-hidden");
 		this.activeLink?.classList.remove("active");
 		this.activeLink = null;
 	}

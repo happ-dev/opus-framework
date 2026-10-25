@@ -1,10 +1,11 @@
+// @ts-nocheck
 /**
  * @Project: Opus
  * @Version: 1.0
  * @Author: Tomasz Ułazowski
  * @Date:   2026-07-27 17:17:16
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-08-11 13:30:20
+ * @Last Modified time: 2026-10-20 11:10:23
  **/
 
 /**
@@ -45,6 +46,7 @@ class OpusSelect {
 	}
 
 	/** @type {{visible: boolean, search: boolean, limit: number}} */
+	// @ts-ignore
 	static #defaults = {
 		visible: false,
 		search: true,
@@ -384,9 +386,7 @@ class OpusSelect {
 		item.className = "opus-select-option";
 		item.dataset.value = opt.value;
 
-		const isSelected = select
-			? !!select.querySelector(`option[value="${opt.value}"]`)
-			: false;
+		const isSelected = select ? !!select.querySelector(`option[value="${opt.value}"]`) : false;
 
 		if (config.multiple) {
 			const checkbox = document.createElement("input");

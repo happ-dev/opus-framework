@@ -5,8 +5,8 @@
  * @Version: 1.0
  * @Author: Tomasz Ulazowski
  * @Date:   2026-04-19 17:56:36
- * @Last Modified by:   Tomasz Ulazowski
- * @Last Modified time: 2026-05-25 21:09:07
+ * @Last Modified by:   Tomasz Ułazowski
+ * @Last Modified time: 2026-10-05 19:28:18
  **/
 
 namespace Opus\view\navbar;
@@ -345,7 +345,7 @@ class Navbar
 			return <<<HTML
 			<ul class="navbar-nav flex-row flex-wrap ms-xxl-auto">
 				<li class="nav-item col-6 col-xxl-auto">
-					<a class="nav-link nav-link-opus py-1 px-0 m-auto px-xxl-2" href="#" data-bs-toggle="modal" data-bs-target="#id__nav-opus-login">
+					<a class="nav-link nav-link-opus pb-1 px-0 m-auto px-xxl-2" href="#" data-bs-toggle="modal" data-bs-target="#id__nav-opus-login">
 						<i class="bi bi-person-up me-1"></i>{$loginText}
 					</a>
 				</li>
@@ -367,7 +367,7 @@ class Navbar
 			};
 			$html .= <<<HTML
 			<li class="nav-item col-6 col-xxl-auto {$dropdown}">
-				<a class="nav-link nav-link-opus py-1 px-0 m-auto px-xxl-2 {$dropdownToggle}" href="{$menu['route']}" id="{$index}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+				<a class="nav-link nav-link-opus pb-1 px-0 m-auto px-xxl-2 {$dropdownToggle}" href="{$menu['route']}" id="{$index}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 					<i class="me-1 bi {$menu['icon']}"></i>{$menu['name']}
 				</a>
 				{$this->isSubMenuHtml($menu['submenu'],$index)}
@@ -390,7 +390,7 @@ class Navbar
 			<hr class="d-xxl-none my-2 text-white-50">
 		</li>
 		<li class="nav-item col-6 col-xxl-auto dropdown">
-			<button class="btn btn-default nav-link nav-link-opus py-1 px-0 m-auto px-xxl-2 dropdown-toggle"
+			<button class="btn btn-default nav-link nav-link-opus pb-1 px-0 m-auto px-xxl-2 dropdown-toggle"
 				type="button"
 				data-bs-toggle="dropdown"
 				aria-expanded="false"

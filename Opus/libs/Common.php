@@ -6,7 +6,7 @@
  * @Author: Tomasz Ułazowski
  * @Date:   2026-02-01 20:27:50
  * @Last Modified by:   Tomasz Ułazowski
- * @Last Modified time: 2026-08-16 20:23:51
+ * @Last Modified time: 2026-10-18 20:42:16
  **/
 
 namespace Opus\libs;
@@ -16,6 +16,47 @@ use Random\RandomException;
 
 class Common
 {
+	/**
+	 * Month name lang keys indexed 1–12
+	 *
+	 * - 'name' — full month names (e.g. opus.datepicker.month.jan → "Styczeń" / "January")
+	 * - 'short-name' — abbreviated month names (e.g. opus.datepicker.month.short.jan → "Sty" / "Jan")
+	 *
+	 * Usage: Lang::getInstance()->get(Common::MONTH['name'][(int) $monthNumber])
+	 *
+	 * @var array<string, array<int, string>>
+	 */
+	const MONTH = [
+		'name' => [
+			1 => 'opus.datepicker.month.jan',
+			2 => 'opus.datepicker.month.feb',
+			3 => 'opus.datepicker.month.mar',
+			4 => 'opus.datepicker.month.apr',
+			5 => 'opus.datepicker.month.may',
+			6 => 'opus.datepicker.month.jun',
+			7 => 'opus.datepicker.month.jul',
+			8 => 'opus.datepicker.month.aug',
+			9 => 'opus.datepicker.month.sep',
+			10 => 'opus.datepicker.month.oct',
+			11 => 'opus.datepicker.month.nov',
+			12 => 'opus.datepicker.month.dec'
+		],
+		'short-name' => [
+			1 => 'opus.datepicker.month.short.jan',
+			2 => 'opus.datepicker.month.short.feb',
+			3 => 'opus.datepicker.month.short.mar',
+			4 => 'opus.datepicker.month.short.apr',
+			5 => 'opus.datepicker.month.short.may',
+			6 => 'opus.datepicker.month.short.jun',
+			7 => 'opus.datepicker.month.short.jul',
+			8 => 'opus.datepicker.month.short.aug',
+			9 => 'opus.datepicker.month.short.sep',
+			10 => 'opus.datepicker.month.short.oct',
+			11 => 'opus.datepicker.month.short.nov',
+			12 => 'opus.datepicker.month.short.dec'
+		]
+	];
+
 	/**
 	 * Generates a unique identifier using SHA-256 hash with additional entropy
 	 *

@@ -20,9 +20,18 @@
 - [x] `Config::setTemporaryDbConfig()` — add a temporary runtime storage config entry (e.g. `_setup_temp` for `setup sql create`)
 - [x] `Config::removeTemporaryDbConfig()` — remove a temporary runtime storage config entry (cleanup after execution)
 
-### JS
+### Sidebar
+- [x] `ValidateSidebarItems::validateItems()` / `validateItem()` — string `'hr'` in items array causes type error — added `continue` to skip divider strings in both top-level and dropdown validation loops
+
+### CSS / JS
+- [x] `dashboard-opus` — new CSS class for fixed-width dashboard panel (`flex: 0 0 20%`)
+- [x] `dashboard-opus-hidden` — responsive hide: dashboard hidden on small screens (`< 1400px`) only when async page is active
+- [x] `OpusAsyncPage` — toggle `dashboard-opus-hidden` class on `load()` / `close()`
 - [ ] Chart library (chart.js + optional API for data fetching)
 - [ ] Copy to clipboard — click icon to copy text (e.g. table cell, code block)
+
+### Docs
+- [x] `CONFIGURATION_LDAP.md` — translated from Polish to English (all other CONFIGURATION docs were already in English)
 
 ## Completed (v1.0)
 

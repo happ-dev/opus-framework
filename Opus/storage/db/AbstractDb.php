@@ -122,7 +122,7 @@ abstract class AbstractDb implements InterfaceDb
 	private function validateExecuteParams(array &$params): void
 	{
 		$required = [
-			'prepare' => fn($val) => !empty($val) && preg_match('/^\s*(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|TRUNCATE|CALL)\s+/i', $val)
+			'prepare' => fn($val) => !empty($val) && preg_match('/^\s*(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|TRUNCATE|CALL|WITH)\s+/i', $val)
 				?: throw new StorageException(
 					'storage\db\dbExecute\validateParams',
 					[
